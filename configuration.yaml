@@ -1,0 +1,167 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: 57.43
+  longitude: 11.59
+  # C for Celcius, F for Fahrenheit
+  temperature_unit: C
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Europe/Stockholm
+
+  customize:
+    sun.sun:
+      hidden: true
+    group.Switch:
+      hidden: true
+
+http: !include http.yaml
+
+switch:
+  platform: tellstick
+  datatype_mask: 127
+
+light:
+  platform: tellstick
+  datatype_mask: 127
+
+device_tracker: !include devicetracker.yaml
+
+media_player:
+  - platform: kodi
+    url: http://192.168.1.15:8080/jsonrpc
+
+#  - platform: samsungtv
+#    host: 192.168.1.33
+
+sensor:
+  platform: tellstick
+  only_named: 1
+  11: Frys
+  31: Ute
+  80: Våning 3
+  53: Vind
+  datatype_mask: 1
+
+verisure: !include verisure.yaml
+
+discovery:
+
+frontend:
+
+conversation:
+
+history:
+
+logbook:
+
+sun:
+
+group:
+  Belysning:
+    view: yes
+    entities:
+      - group.Ute
+      - group.Fnster
+  Multimedia:
+    view: yes
+    entities:
+      - group.Musik
+  Klimat:
+    view: yes
+    entities:
+      - group.Temperatur
+      - group.Fuktighet
+  Ute:
+    - switch.Baksida
+    - switch.Entre
+    - switch.Balkong
+  Fönster:
+    - switch.van3_fonster1
+    - switch.van3_fonster2
+  Musik:
+    - media_player.tak
+    - script.radio_paradise
+  Temperatur:
+    - sensor.frys_temperature
+    - sensor.hall_nere_temperature
+    - sensor.hall_uppe_temperature
+    - sensor.vardagsrum_temperature
+    - sensor.ute_temperature
+    - sensor.vning_3_temperature
+    - sensor.vind_temperature
+  Fuktighet:
+    - sensor.hall_nere_humidity
+    - sensor.hall_uppe_humidity
+    - sensor.ute_humidity
+    - sensor.ute_temperature_2
+
+automation:
+  - alias: Turn on lights outside at sunset
+    trigger:
+      platform: sun
+      event: sunset
+    action:
+      service: homeassistant.turn_on
+      entity_id: group.Ute
+
+  - alias: Turn off lights outside at sunrise
+    trigger:
+      platform: sun
+      event: sunrise
+    action:
+      service: homeassistant.turn_off
+      entity_id: group.Ute
+
+  - alias: Turn off radio when leaving home
+    trigger:
+      platform: state
+      entity_id: alarm_control_panel.alarm_1
+      state: 'armed_away'
+    action:
+      service: media_player.media_pause
+      entity_id: media_player.tak
+
+  - alias: Turn off third floor window light in the evening
+    trigger:
+      platform: time
+      after: '22:30:00'
+    action:
+      service: homeassistant.turn_off
+      entity_id: group.fnster
+
+  - alias: Start Radio Paradise
+    trigger:
+      - platform: state
+        entity_id: input_select.kanal
+        state: Radio Paradise
+
+input_select:
+  kanal:
+    name: Kanal
+    options:
+      - Radio Paradise
+      - P1
+      - P3
+      - Radioapan
+    initial: Radio Paradise
+
+script:
+  radio_paradise:
+    alias: Radio Paradise    
+    sequence:
+      - alias: Power on    
+        service: media_player.turn_on   
+        service_data:
+          entity_id: media_player.tak     
+      - alias: Set volume  
+        service: media_player.volume_set
+        service_data:      
+          entity_id: media_player.tak     
+          volume_level: 0.35               
+      - alias: Start radio paradise
+        service: media_player.play_media
+        service_data:      
+          entity_id: media_player.tak     
+          media_type: video/mp4           
+          media_id: http://stream-dc1.radioparadise.com/rp_192m.ogg
