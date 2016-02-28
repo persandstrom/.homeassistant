@@ -22,7 +22,8 @@ homeassistant:
       hidden: true
     script.sr_radioapan:
       hidden: true
-
+    script.start_radio:
+      hidden: true
     group.Switch:
       hidden: true
 
@@ -108,6 +109,24 @@ group:
     - sensor.ute_temperature_2
 
 automation:
+  - alias: LED laudery on
+    trigger:
+      - platform: state
+        entity_id: switch.move
+        event: switch.on
+    action:
+      service: homeassistant.turn_on
+      entity_id: switch.tvttstuga_led
+  
+  - alias: LED laudery off
+    trigger:
+      - platform: state
+        entity_id: switch.move
+        event: switch.off
+    action:
+      service: homeassistant.turn_off
+      entity_id: switch.tvttstuga_led
+
   - alias: Turn on lights outside at sunset
     trigger:
       platform: sun
@@ -168,7 +187,7 @@ automation:
         entity_id: input_select.kanal
         state: P3
     action:
-      service: script.sp_p3
+      service: script.sr_p3
       entity_id: script.ON
   
   - alias: Start P4
@@ -202,8 +221,8 @@ input_select:
     initial: Av
 
 script:
-  radio_paradise:
-    alias: Radio Paradise
+  start_radio:
+    alias: Start Radio
     sequence:
       - alias: Power on    
         service: media_player.turn_on   
@@ -214,6 +233,13 @@ script:
         service_data:      
           entity_id: media_player.tak     
           volume_level: 0.35               
+  radio_paradise:
+    alias: Radio Paradise
+    sequence:
+      - alias: Power on    
+        service: script.start_radio
+        service_data:
+          entity_id: script.ON
       - alias: Start radio paradise
         service: media_player.play_media
         service_data:      
@@ -224,14 +250,9 @@ script:
     alias: P1
     sequence:
       - alias: Power on    
-        service: media_player.turn_on   
+        service: script.start_radio
         service_data:
-          entity_id: media_player.tak     
-      - alias: Set volume  
-        service: media_player.volume_set
-        service_data:      
-          entity_id: media_player.tak     
-          volume_level: 0.35               
+          entity_id: script.ON
       - alias: Start P1
         service: media_player.play_media
         service_data:      
@@ -242,14 +263,9 @@ script:
     alias: P3
     sequence:
       - alias: Power on    
-        service: media_player.turn_on   
+        service: script.start_radio
         service_data:
-          entity_id: media_player.tak     
-      - alias: Set volume  
-        service: media_player.volume_set
-        service_data:      
-          entity_id: media_player.tak     
-          volume_level: 0.35               
+          entity_id: script.ON
       - alias: Start P3
         service: media_player.play_media
         service_data:      
@@ -260,14 +276,9 @@ script:
     alias: P4
     sequence:
       - alias: Power on    
-        service: media_player.turn_on   
+        service: script.start_radio
         service_data:
-          entity_id: media_player.tak     
-      - alias: Set volume  
-        service: media_player.volume_set
-        service_data:      
-          entity_id: media_player.tak     
-          volume_level: 0.35               
+          entity_id: script.ON
       - alias: Start P4
         service: media_player.play_media
         service_data:      
@@ -278,14 +289,9 @@ script:
     alias: Radioapan
     sequence:
       - alias: Power on    
-        service: media_player.turn_on   
+        service: script.start_radio
         service_data:
-          entity_id: media_player.tak     
-      - alias: Set volume  
-        service: media_player.volume_set
-        service_data:      
-          entity_id: media_player.tak     
-          volume_level: 0.35               
+          entity_id: script.ON
       - alias: Start Radioapan
         service: media_player.play_media
         service_data:      
