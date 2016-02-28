@@ -12,6 +12,17 @@ homeassistant:
   customize:
     sun.sun:
       hidden: true
+    script.radio_paradise:
+      hidden: true
+    script.sr_p1:
+      hidden: true
+    script.sr_p3:
+      hidden: true
+    script.sr_p4:
+      hidden: true
+    script.sr_radioapan:
+      hidden: true
+
     group.Switch:
       hidden: true
 
@@ -81,7 +92,7 @@ group:
     - switch.van3_fonster2
   Musik:
     - media_player.tak
-    - script.radio_paradise
+    - input_select.kanal
   Temperatur:
     - sensor.frys_temperature
     - sensor.hall_nere_temperature
@@ -113,11 +124,14 @@ automation:
       service: homeassistant.turn_off
       entity_id: group.Ute
 
-  - alias: Turn off radio when leaving home
+  - alias: Turn off radio
     trigger:
-      platform: state
-      entity_id: alarm_control_panel.alarm_1
-      state: 'armed_away'
+      - platform: state
+        entity_id: alarm_control_panel.alarm_1
+        state: 'armed_away'
+      - platform: state
+        entity_id: input_select.kanal
+        state: Av
     action:
       service: media_player.media_pause
       entity_id: media_player.tak
@@ -135,7 +149,46 @@ automation:
       - platform: state
         entity_id: input_select.kanal
         state: Radio Paradise
-
+    action:
+      service: script.radio_paradise
+      entity_id: script.ON
+  
+  - alias: Start P1
+    trigger:
+      - platform: state
+        entity_id: input_select.kanal
+        state: P1
+    action:
+      service: script.sr_p1
+      entity_id: script.ON
+  
+  - alias: Start P3
+    trigger:
+      - platform: state
+        entity_id: input_select.kanal
+        state: P3
+    action:
+      service: script.sp_p3
+      entity_id: script.ON
+  
+  - alias: Start P4
+    trigger:
+      - platform: state
+        entity_id: input_select.kanal
+        state: P4
+    action:
+      service: script.sr_p4
+      entity_id: script.ON
+  
+  - alias: Start Radioapan
+    trigger:
+      - platform: state
+        entity_id: input_select.kanal
+        state: Radioapan
+    action:
+      service: script.sr_radioapan
+      entity_id: script.ON
+  
 input_select:
   kanal:
     name: Kanal
@@ -146,11 +199,11 @@ input_select:
       - P3
       - P4
       - Radioapan
-    initial: Radio Paradise
+    initial: Av
 
 script:
   radio_paradise:
-    alias: Radio Paradise    
+    alias: Radio Paradise
     sequence:
       - alias: Power on    
         service: media_player.turn_on   
@@ -167,3 +220,75 @@ script:
           entity_id: media_player.tak     
           media_type: video/mp4           
           media_id: http://stream-dc1.radioparadise.com/rp_192m.ogg
+  sr_p1:
+    alias: P1
+    sequence:
+      - alias: Power on    
+        service: media_player.turn_on   
+        service_data:
+          entity_id: media_player.tak     
+      - alias: Set volume  
+        service: media_player.volume_set
+        service_data:      
+          entity_id: media_player.tak     
+          volume_level: 0.35               
+      - alias: Start P1
+        service: media_player.play_media
+        service_data:      
+          entity_id: media_player.tak     
+          media_type: video/mp4           
+          media_id: http://sverigesradio.se/topsy/direkt/132-hi-mp3
+  sr_p3:
+    alias: P3
+    sequence:
+      - alias: Power on    
+        service: media_player.turn_on   
+        service_data:
+          entity_id: media_player.tak     
+      - alias: Set volume  
+        service: media_player.volume_set
+        service_data:      
+          entity_id: media_player.tak     
+          volume_level: 0.35               
+      - alias: Start P3
+        service: media_player.play_media
+        service_data:      
+          entity_id: media_player.tak     
+          media_type: video/mp4           
+          media_id: http://sverigesradio.se/topsy/direkt/164-hi-mp3
+  sr_p4:
+    alias: P4
+    sequence:
+      - alias: Power on    
+        service: media_player.turn_on   
+        service_data:
+          entity_id: media_player.tak     
+      - alias: Set volume  
+        service: media_player.volume_set
+        service_data:      
+          entity_id: media_player.tak     
+          volume_level: 0.35               
+      - alias: Start P4
+        service: media_player.play_media
+        service_data:      
+          entity_id: media_player.tak     
+          media_type: video/mp4           
+          media_id: http://sverigesradio.se/topsy/direkt/212-hi-mp3
+  sr_radioapan:
+    alias: Radioapan
+    sequence:
+      - alias: Power on    
+        service: media_player.turn_on   
+        service_data:
+          entity_id: media_player.tak     
+      - alias: Set volume  
+        service: media_player.volume_set
+        service_data:      
+          entity_id: media_player.tak     
+          volume_level: 0.35               
+      - alias: Start Radioapan
+        service: media_player.play_media
+        service_data:      
+          entity_id: media_player.tak     
+          media_type: video/mp4           
+          media_id: http://sverigesradio.se/topsy/direkt/2755-hi-mp3
