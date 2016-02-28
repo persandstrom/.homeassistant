@@ -140,9 +140,11 @@ input_select:
   kanal:
     name: Kanal
     options:
+      - Av
       - Radio Paradise
       - P1
       - P3
+      - P4
       - Radioapan
     initial: Radio Paradise
 
