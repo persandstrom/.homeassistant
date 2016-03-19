@@ -29,19 +29,13 @@ homeassistant:
 
 http: !include http.yaml
 
-switch:
-  platform: tellstick
-  datatype_mask: 127
-
-light:
-  platform: tellstick
-  datatype_mask: 127
+tellstick:
 
 device_tracker: !include devicetracker.yaml
 
-media_player:
-  - platform: kodi
-    url: http://192.168.1.15:8080/jsonrpc
+# media_player:
+#   - platform: kodi
+#     url: http://192.168.1.15:8080/jsonrpc
 
 #  - platform: samsungtv
 #    host: 192.168.1.33
@@ -91,9 +85,10 @@ group:
   Fönster:
     - switch.van3_fonster1
     - switch.van3_fonster2
-  Musik:
+  Radio:
     - media_player.tak
     - input_select.kanal
+    - input_slider.radio_volume
   Temperatur:
     - sensor.frys_temperature
     - sensor.hall_nere_temperature
@@ -109,6 +104,15 @@ group:
     - sensor.ute_temperature_2
 
 automation:
+    #  - alias: Change radio volume
+    #trigger:
+    #  - platform: state
+    #    entity_id: input_slider.radio_volume
+    #action:
+    #  service: media_player.set_volume
+    #  entity_id: media_player.tak
+    #  data_template:
+    #    volume: '{{ state.input_slider.radio_volume.state }}'
   - alias: LED laudery on
     trigger:
       - platform: state
@@ -220,17 +224,25 @@ input_select:
       - Radioapan
     initial: Av
 
+input_slider:
+  radio_volume:
+    name: Volym
+    min: 0
+    max: 1
+    step: 0.01
+    initial: 0.35
+
 script:
   start_radio:
     alias: Start Radio
     sequence:
       - alias: Power on    
         service: media_player.turn_on   
-        service_data:
+        data:
           entity_id: media_player.tak     
       - alias: Set volume  
         service: media_player.volume_set
-        service_data:      
+        data:      
           entity_id: media_player.tak     
           volume_level: 0.35               
   radio_paradise:
@@ -238,63 +250,63 @@ script:
     sequence:
       - alias: Power on    
         service: script.start_radio
-        service_data:
+        data:
           entity_id: script.ON
       - alias: Start radio paradise
         service: media_player.play_media
-        service_data:      
+        data:      
           entity_id: media_player.tak     
-          media_type: video/mp4           
-          media_id: http://stream-dc1.radioparadise.com/rp_192m.ogg
+          media_content_type: video/mp4           
+          media_content_id: http://stream-dc1.radioparadise.com/rp_192m.ogg
   sr_p1:
     alias: P1
     sequence:
       - alias: Power on    
         service: script.start_radio
-        service_data:
+        data:
           entity_id: script.ON
       - alias: Start P1
         service: media_player.play_media
-        service_data:      
+        data:      
           entity_id: media_player.tak     
-          media_type: video/mp4           
-          media_id: http://sverigesradio.se/topsy/direkt/132-hi-mp3
+          media_content_type: video/mp4           
+          media_content_id: http://sverigesradio.se/topsy/direkt/132-hi-mp3
   sr_p3:
     alias: P3
     sequence:
       - alias: Power on    
         service: script.start_radio
-        service_data:
+        data:
           entity_id: script.ON
       - alias: Start P3
         service: media_player.play_media
-        service_data:      
+        data:      
           entity_id: media_player.tak     
-          media_type: video/mp4           
-          media_id: http://sverigesradio.se/topsy/direkt/164-hi-mp3
+          media_content_type: video/mp4           
+          media_content_id: http://sverigesradio.se/topsy/direkt/164-hi-mp3
   sr_p4:
     alias: P4
     sequence:
       - alias: Power on    
         service: script.start_radio
-        service_data:
+        data:
           entity_id: script.ON
       - alias: Start P4
         service: media_player.play_media
-        service_data:      
+        data:      
           entity_id: media_player.tak     
-          media_type: video/mp4           
-          media_id: http://sverigesradio.se/topsy/direkt/212-hi-mp3
+          media_contnent_type: video/mp4           
+          media_content_id: http://sverigesradio.se/topsy/direkt/212-hi-mp3
   sr_radioapan:
     alias: Radioapan
     sequence:
       - alias: Power on    
         service: script.start_radio
-        service_data:
+        data:
           entity_id: script.ON
       - alias: Start Radioapan
         service: media_player.play_media
-        service_data:      
+        data:      
           entity_id: media_player.tak     
-          media_type: video/mp4           
-          media_id: http://sverigesradio.se/topsy/direkt/2755-hi-mp3
+          media_content_type: video/mp4           
+          media_content_id: http://sverigesradio.se/topsy/direkt/2755-hi-mp3
