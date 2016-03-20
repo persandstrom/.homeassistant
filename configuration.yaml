@@ -33,9 +33,9 @@ tellstick:
 
 device_tracker: !include devicetracker.yaml
 
-# media_player:
-#   - platform: kodi
-#     url: http://192.168.1.15:8080/jsonrpc
+media_player:
+  - platform: kodi
+    url: http://192.168.1.15:8080/jsonrpc
 
 #  - platform: samsungtv
 #    host: 192.168.1.33
@@ -167,50 +167,13 @@ automation:
       service: homeassistant.turn_off
       entity_id: group.fnster
 
-  - alias: Start Radio Paradise
+  - alias: Start Radio
     trigger:
       - platform: state
         entity_id: input_select.kanal
-        state: Radio Paradise
     action:
-      service: script.radio_paradise
       entity_id: script.ON
-  
-  - alias: Start P1
-    trigger:
-      - platform: state
-        entity_id: input_select.kanal
-        state: P1
-    action:
-      service: script.sr_p1
-      entity_id: script.ON
-  
-  - alias: Start P3
-    trigger:
-      - platform: state
-        entity_id: input_select.kanal
-        state: P3
-    action:
-      service: script.sr_p3
-      entity_id: script.ON
-  
-  - alias: Start P4
-    trigger:
-      - platform: state
-        entity_id: input_select.kanal
-        state: P4
-    action:
-      service: script.sr_p4
-      entity_id: script.ON
-  
-  - alias: Start Radioapan
-    trigger:
-      - platform: state
-        entity_id: input_select.kanal
-        state: Radioapan
-    action:
-      service: script.sr_radioapan
-      entity_id: script.ON
+      service: script.start_radio
   
 input_select:
   kanal:
@@ -244,69 +207,22 @@ script:
         service: media_player.volume_set
         data:      
           entity_id: media_player.tak     
-          volume_level: 0.35               
-  radio_paradise:
-    alias: Radio Paradise
-    sequence:
-      - alias: Power on    
-        service: script.start_radio
-        data:
-          entity_id: script.ON
-      - alias: Start radio paradise
+          volume_level: 0.35
+      - alias: Play
         service: media_player.play_media
-        data:      
-          entity_id: media_player.tak     
-          media_content_type: video/mp4           
-          media_content_id: http://stream-dc1.radioparadise.com/rp_192m.ogg
-  sr_p1:
-    alias: P1
-    sequence:
-      - alias: Power on    
-        service: script.start_radio
         data:
-          entity_id: script.ON
-      - alias: Start P1
-        service: media_player.play_media
-        data:      
-          entity_id: media_player.tak     
-          media_content_type: video/mp4           
-          media_content_id: http://sverigesradio.se/topsy/direkt/132-hi-mp3
-  sr_p3:
-    alias: P3
-    sequence:
-      - alias: Power on    
-        service: script.start_radio
-        data:
-          entity_id: script.ON
-      - alias: Start P3
-        service: media_player.play_media
-        data:      
-          entity_id: media_player.tak     
-          media_content_type: video/mp4           
-          media_content_id: http://sverigesradio.se/topsy/direkt/164-hi-mp3
-  sr_p4:
-    alias: P4
-    sequence:
-      - alias: Power on    
-        service: script.start_radio
-        data:
-          entity_id: script.ON
-      - alias: Start P4
-        service: media_player.play_media
-        data:      
-          entity_id: media_player.tak     
-          media_contnent_type: video/mp4           
-          media_content_id: http://sverigesradio.se/topsy/direkt/212-hi-mp3
-  sr_radioapan:
-    alias: Radioapan
-    sequence:
-      - alias: Power on    
-        service: script.start_radio
-        data:
-          entity_id: script.ON
-      - alias: Start Radioapan
-        service: media_player.play_media
-        data:      
-          entity_id: media_player.tak     
-          media_content_type: video/mp4           
-          media_content_id: http://sverigesradio.se/topsy/direkt/2755-hi-mp3
+          entity_id: media_player.tak
+          media_content_type: video/mp4
+        data_template:
+          media_content_id: >
+            {% if is_state('input_select.kanal', 'Radio Paradise') %}
+              http://stream-dc1.radioparadise.com/rp_192m.ogg
+            {% elif is_state('input_select.kanal', 'P1') %}
+              http://sverigesradio.se/topsy/direkt/132-hi-mp3
+            {% elif is_state('input_select.kanal', 'P3') %}
+              http://sverigesradio.se/topsy/direkt/164-hi-mp3
+            {% elif is_state('input_select.kanal', 'P4') %}
+              http://sverigesradio.se/topsy/direkt/212-hi-mp3
+            {% elif is_state('input_select.kanal', 'Radioapan') %}
+              http://sverigesradio.se/topsy/direkt/2755-hi-mp3
+            {% endif %}
