@@ -104,15 +104,16 @@ group:
     - sensor.ute_temperature_2
 
 automation:
-    #  - alias: Change radio volume
-    #trigger:
-    #  - platform: state
-    #    entity_id: input_slider.radio_volume
-    #action:
-    #  service: media_player.set_volume
-    #  entity_id: media_player.tak
-    #  data_template:
-    #    volume: '{{ state.input_slider.radio_volume.state }}'
+  - alias: Change radio volume
+    trigger:
+      - platform: state
+        entity_id: input_slider.radio_volume
+    action:
+      service: media_player.volume_set
+      entity_id: media_player.tak
+      data_template:
+        volume_level: '{{ float(states.input_slider.radio_volume.state) / 100 }}'
+
   - alias: LED laudery on
     trigger:
       - platform: state
@@ -158,6 +159,14 @@ automation:
     action:
       service: media_player.media_pause
       entity_id: media_player.tak
+  
+  - alias: Turn on window lights floor three at sunset
+    trigger:
+      platform: sun
+      event: sunset
+    action:
+      service: homeassistant.turn_on
+      entity_id: group.fnster
 
   - alias: Turn off third floor window light in the evening
     trigger:
@@ -191,9 +200,8 @@ input_slider:
   radio_volume:
     name: Volym
     min: 0
-    max: 1
-    step: 0.01
-    initial: 0.35
+    max: 100
+    initial: 35
 
 script:
   start_radio:
