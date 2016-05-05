@@ -26,6 +26,12 @@ homeassistant:
       hidden: true
     group.Switch:
       hidden: true
+    media_player.kodi:
+      hidden: true
+    media_player.tak:
+      hidden: true
+    media_player.tvcast:
+      hidden: true
 
 http: !include http.yaml
 
@@ -114,23 +120,23 @@ automation:
       data_template:
         volume_level: '{{ float(states.input_slider.radio_volume.state) / 100 }}'
 
-  - alias: LED laudery on
-    trigger:
-      - platform: state
-        entity_id: switch.move
-        event: switch.on
-    action:
-      service: homeassistant.turn_on
-      entity_id: switch.tvttstuga_led
+#  - alias: LED laudery on
+#    trigger:
+#      - platform: state
+#        entity_id: switch.move
+#        event: switch.on
+#    action:
+#      service: homeassistant.turn_on
+#      entity_id: switch.tvttstuga_led
   
-  - alias: LED laudery off
-    trigger:
-      - platform: state
-        entity_id: switch.move
-        event: switch.off
-    action:
-      service: homeassistant.turn_off
-      entity_id: switch.tvttstuga_led
+#  - alias: LED laudery off
+#    trigger:
+#      - platform: state
+#        entity_id: switch.move
+#        event: switch.off
+#    action:
+#      service: homeassistant.turn_off
+#      entity_id: switch.tvttstuga_led
 
   - alias: Turn on lights outside at sunset
     trigger:
@@ -218,10 +224,9 @@ script:
           volume_level: 0.35
       - alias: Play
         service: media_player.play_media
-        data:
+        data_template:
           entity_id: media_player.tak
           media_content_type: video/mp4
-        data_template:
           media_content_id: >
             {% if is_state('input_select.kanal', 'Radio Paradise') %}
               http://stream-dc1.radioparadise.com/rp_192m.ogg
