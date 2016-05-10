@@ -39,9 +39,9 @@ tellstick:
 
 device_tracker: !include devicetracker.yaml
 
-media_player:
-  - platform: kodi
-    url: http://192.168.1.15:8080/jsonrpc
+# media_player:
+#   - platform: kodi
+#     url: http://192.168.1.15:8080/jsonrpc
 
 #  - platform: samsungtv
 #    host: 192.168.1.33
@@ -120,23 +120,25 @@ automation:
       data_template:
         volume_level: '{{ float(states.input_slider.radio_volume.state) / 100 }}'
 
-#  - alias: LED laudery on
-#    trigger:
-#      - platform: state
-#        entity_id: switch.move
-#        event: switch.on
-#    action:
-#      service: homeassistant.turn_on
-#      entity_id: switch.tvttstuga_led
+  - alias: LED laudery on
+    trigger:
+      platform: state
+      entity_id: switch.move
+      from: switch.off
+      to: switch.on
+    action:
+      service: homeassistant.turn_on
+      entity_id: switch.tvttstuga_led
   
-#  - alias: LED laudery off
-#    trigger:
-#      - platform: state
-#        entity_id: switch.move
-#        event: switch.off
-#    action:
-#      service: homeassistant.turn_off
-#      entity_id: switch.tvttstuga_led
+  - alias: LED laudery off
+    trigger:
+      platform: state
+      entity_id: switch.move
+      from: switch.on
+      to: switch.off
+    action:
+      service: homeassistant.turn_off
+      entity_id: switch.tvttstuga_led
 
   - alias: Turn on lights outside at sunset
     trigger:
@@ -184,8 +186,8 @@ automation:
 
   - alias: Start Radio
     trigger:
-      - platform: state
-        entity_id: input_select.kanal
+      platform: state
+      entity_id: input_select.kanal
     action:
       entity_id: script.ON
       service: script.start_radio
