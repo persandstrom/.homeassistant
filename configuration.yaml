@@ -35,7 +35,10 @@ homeassistant:
 
 http: !include http.yaml
 
+notify: !include telegram.yaml
+
 tellstick:
+  signal_repetitions: 3
 
 device_tracker: !include devicetracker.yaml
 
@@ -120,25 +123,45 @@ automation:
       data_template:
         volume_level: '{{ float(states.input_slider.radio_volume.state) / 100 }}'
 
-  - alias: LED laudery on
-    trigger:
-      platform: state
-      entity_id: switch.move
-      from: switch.off
-      to: switch.on
-    action:
-      service: homeassistant.turn_on
-      entity_id: switch.tvttstuga_led
-  
-  - alias: LED laudery off
-    trigger:
-      platform: state
-      entity_id: switch.move
-      from: switch.on
-      to: switch.off
-    action:
-      service: homeassistant.turn_off
-      entity_id: switch.tvttstuga_led
+#  - alias: Roof window open warning
+#    trigger:
+#      platform: time
+#      minutes: 15
+#      seconds: 0
+#      after: '21:00:00'
+#    condition: or
+#    conditions:
+#      - condition: state
+#        entity_id: switch.Takfonster1
+#        state: 'on'
+#      - condition: state
+#        entity_id: switch.Takfonster2
+#        state: 'on'
+#    action:
+#      service: notify.notify
+#      data:
+#        message: Roof window open
+
+
+#  - alias: LED laudery on
+#    trigger:
+#      platform: state
+#      entity_id: switch.move
+#      from: 'off'
+#      to: 'on'
+#    action:
+#      service: homeassistant.turn_on
+#      entity_id: switch.tvttstuga_led
+#  
+#  - alias: LED laudery off
+#    trigger:
+#      platform: state
+#      entity_id: switch.move
+#      from: 'on'
+#      to: 'off'
+#    action:
+#      service: homeassistant.turn_off
+#      entity_id: switch.tvttstuga_led
 
   - alias: Turn on lights outside at sunset
     trigger:
@@ -189,8 +212,11 @@ automation:
       platform: state
       entity_id: input_select.kanal
     action:
-      entity_id: script.ON
-      service: script.start_radio
+      - service: notify.notify
+        data:
+          message: Starting Radio
+      - entity_id: script.ON
+        service: script.start_radio
   
 input_select:
   kanal:
@@ -210,6 +236,7 @@ input_slider:
     min: 0
     max: 100
     initial: 35
+    step: 1
 
 script:
   start_radio:
@@ -222,8 +249,9 @@ script:
       - alias: Set volume  
         service: media_player.volume_set
         data:      
-          entity_id: media_player.tak     
-          volume_level: 0.35
+          entity_id: media_player.tak
+        data_template:
+          volume_level: '{{ float(states.input_slider.radio_volume.state) / 100 }}'
       - alias: Play
         service: media_player.play_media
         data_template:
