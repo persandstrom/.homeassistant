@@ -143,26 +143,6 @@ automation:
 #        message: Roof window open
 
 
-#  - alias: LED laudery on
-#    trigger:
-#      platform: state
-#      entity_id: switch.move
-#      from: 'off'
-#      to: 'on'
-#    action:
-#      service: homeassistant.turn_on
-#      entity_id: switch.tvttstuga_led
-#  
-#  - alias: LED laudery off
-#    trigger:
-#      platform: state
-#      entity_id: switch.move
-#      from: 'on'
-#      to: 'off'
-#    action:
-#      service: homeassistant.turn_off
-#      entity_id: switch.tvttstuga_led
-
   - alias: Turn on lights outside at sunset
     trigger:
       platform: sun
