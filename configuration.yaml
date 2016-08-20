@@ -42,21 +42,33 @@ tellstick:
 
 device_tracker: !include devicetracker.yaml
 
-# media_player:
-#   - platform: kodi
-#     url: http://192.168.1.15:8080/jsonrpc
-
-#  - platform: samsungtv
-#    host: 192.168.1.33
+modbus:
+  type: serial
+  method: rtu
+  port: /dev/ttyUSB0
+  baudrate: 9600
+  stopbits: 1
+  bytesize: 8
+  parity: N
 
 sensor:
-  platform: tellstick
-  only_named: 1
-  11: Frys
-  31: Ute
-  80: Våning 3
-  53: Vind
-  datatype_mask: 1
+  - platform: tellstick
+    only_named: 1
+    11: Frys
+    31: Ute
+    80: Våning 3
+    53: Vind
+    datatype_mask: 1
+  
+  - platform: modbus
+    slave: 1
+    registers:
+      100:
+        name: Fan speed
+        unit: 1-3
+      601:
+        name: Filter age
+        unit: days
 
 verisure: !include verisure.yaml
 
