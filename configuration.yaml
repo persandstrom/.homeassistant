@@ -32,6 +32,8 @@ homeassistant:
       hidden: true
     media_player.tvcast:
       hidden: true
+    media_player.kdl55w808c:
+      hidden: true
 
 http: !include http.yaml
 
@@ -65,10 +67,25 @@ sensor:
     registers:
       100:
         name: Fan speed
-        unit: 1-3
+        unit:
+      213:
+        name: Supply air
+        unit: °C
+        scale: 0.1
+      214:
+        name: Extract air
+        unit: °C
+        scale: 0.1
+      215:
+        name: Exhaust air
+        unit: °C
+        scale: 0.1
       601:
         name: Filter age
         unit: days
+      602:
+        name: Replace in
+        unit: months
 
 verisure: !include verisure.yaml
 
@@ -123,6 +140,14 @@ group:
     - sensor.hall_uppe_humidity
     - sensor.ute_humidity
     - sensor.ute_temperature_2
+  Ventilation:
+    - sensor.fan_speed
+    - input_slider.fan_speed
+    - sensor.filter_age
+    - sensor.replace_in
+    - sensor.supply_air
+    - sensor.extract_air
+    - sensor.exhaust_air
 
 automation:
   - alias: Change radio volume
@@ -182,6 +207,17 @@ automation:
     action:
       service: media_player.media_pause
       entity_id: media_player.tak
+
+  - alias: Notify alarm state
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.alarm_1
+    action:
+      service: notify.notify
+      data_template:
+        message: >
+          alarm {{ trigger.to_state.state }}
+          by {{ trigger.to_state.attributes.changed_by }}
   
   - alias: Turn on window lights floor three at sunset
     trigger:
@@ -204,11 +240,19 @@ automation:
       platform: state
       entity_id: input_select.kanal
     action:
-      - service: notify.notify
-        data:
-          message: Starting Radio
       - entity_id: script.ON
         service: script.start_radio
+
+  - alias: Set fan speed
+    trigger:
+      platform: state
+      entity_id: input_slider.fan_speed
+    action:
+      service: modbus.write_register
+      data_template:
+        unit: 1
+        address: 100
+        value: '{{ states.input_slider.fan_speed.state }}'
   
 input_select:
   kanal:
@@ -228,6 +272,12 @@ input_slider:
     min: 0
     max: 100
     initial: 35
+    step: 1
+  fan_speed:
+    name: Fan speed
+    min: 0
+    max: 4
+    initial: 2
     step: 1
 
 script:
