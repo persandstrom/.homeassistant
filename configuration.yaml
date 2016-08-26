@@ -68,18 +68,24 @@ sensor:
       100:
         name: Fan speed
         unit:
+      206:
+        name: Temperature set
+        unit:
       213:
         name: Supply air
         unit: °C
         scale: 0.1
+        precision: 1
       214:
         name: Extract air
         unit: °C
         scale: 0.1
+        precision: 1
       215:
         name: Exhaust air
         unit: °C
         scale: 0.1
+        precision: 1
       601:
         name: Filter age
         unit: days
@@ -143,6 +149,8 @@ group:
   Ventilation:
     - sensor.fan_speed
     - input_slider.fan_speed
+    - sensor.temperature_set
+    - input_slider.temperature_set
     - sensor.filter_age
     - sensor.replace_in
     - sensor.supply_air
@@ -254,6 +262,17 @@ automation:
         address: 100
         value: '{{ states.input_slider.fan_speed.state }}'
   
+  - alias: Set temperature set
+    trigger:
+      platform: state
+      entity_id: input_slider.temperature_set
+    action:
+      service: modbus.write_register
+      data_template:
+        unit: 1
+        address: 206
+        value: '{{ states.input_slider.temperature_set.state }}'
+  
 input_select:
   kanal:
     name: Kanal
@@ -278,6 +297,12 @@ input_slider:
     min: 0
     max: 4
     initial: 2
+    step: 1
+  temperature_set:
+    name: Temperature set
+    min: 0
+    max: 6
+    initial: 1
     step: 1
 
 script:
