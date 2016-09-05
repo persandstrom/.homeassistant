@@ -261,6 +261,16 @@ automation:
         unit: 1
         address: 100
         value: '{{ states.input_slider.fan_speed.state }}'
+
+  - alias: Set fan speed slider value
+    trigger:
+      platform: state
+      entity_id: sensor.fan_speed
+    action:
+      service: input_slider.select_value
+      data_template:
+        entity_id: input_slider.fan_speed
+        value: '{{ states.sensor.fan_speed.state }}'
   
   - alias: Set temperature set
     trigger:
@@ -272,6 +282,16 @@ automation:
         unit: 1
         address: 206
         value: '{{ states.input_slider.temperature_set.state }}'
+  
+  - alias: Set temperature set slider value
+    trigger:
+      platform: state
+      entity_id: sensor.temperature_set
+    action:
+      service: input_slider.select_value
+      data_template:
+        entity_id: input_slider.temperature_set
+        value: '{{ states.sensor.temperature_set.state }}'
   
 input_select:
   kanal:
@@ -294,15 +314,13 @@ input_slider:
     step: 1
   fan_speed:
     name: Fan speed
-    min: 0
-    max: 4
-    initial: 2
+    min: 1
+    max: 3
     step: 1
   temperature_set:
     name: Temperature set
-    min: 0
-    max: 6
-    initial: 1
+    min: 1
+    max: 3
     step: 1
 
 script:
