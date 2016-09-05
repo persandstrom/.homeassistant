@@ -222,9 +222,11 @@ automation:
         entity_id: alarm_control_panel.alarm_1
     action:
       service: notify.notify
+      data:
+        title: alarm
       data_template:
         message: >
-          alarm {{ trigger.to_state.state }}
+          {{ '*' ~ trigger.to_state.state ~ '*'|replace('_', ' ') }}
           by {{ trigger.to_state.attributes.changed_by }}
   
   - alias: Turn on window lights floor three at sunset
