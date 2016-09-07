@@ -218,7 +218,7 @@ automation:
 
   - alias: Notify alarm state
     trigger:
-      - platform: state
+      - platform: state 
         entity_id: alarm_control_panel.alarm_1
     action:
       service: notify.notify
@@ -228,6 +228,20 @@ automation:
         message: >
           {{ '*' ~ trigger.to_state.state ~ '*'|replace('_', ' ') }}
           by {{ trigger.to_state.attributes.changed_by }}
+  
+  - alias: Notify door bell
+    trigger:
+      - platform: state
+        entity_id: switch.ringklocka
+    condition:
+      - condition: state
+        entity_id: switch.ringklocka
+        state: 'on'
+    action:
+      service: notify.notify
+      data:
+        title: ringklocka
+        message: ding dong
   
   - alias: Turn on window lights floor three at sunset
     trigger:
@@ -258,11 +272,11 @@ automation:
       platform: state
       entity_id: input_slider.fan_speed
     action:
-      service: modbus.write_register
+      service: modbus.write_registers
       data_template:
         unit: 1
         address: 100
-        value: '{{ states.input_slider.fan_speed.state }}'
+        values: '{{ [states.input_slider.fan_speed.state] }}'
 
   - alias: Set fan speed slider value
     trigger:
@@ -279,11 +293,11 @@ automation:
       platform: state
       entity_id: input_slider.temperature_set
     action:
-      service: modbus.write_register
+      service: modbus.write_registers
       data_template:
         unit: 1
         address: 206
-        value: '{{ states.input_slider.temperature_set.state }}'
+        values: '{{ [states.input_slider.temperature_set.state] }}'
   
   - alias: Set temperature set slider value
     trigger:
