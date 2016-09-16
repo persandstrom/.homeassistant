@@ -63,35 +63,41 @@ sensor:
     datatype_mask: 1
   
   - platform: modbus
-    slave: 1
     registers:
-      100:
-        name: Fan speed
-        unit:
-      206:
-        name: Temperature set
-        unit:
-      213:
-        name: Supply air
-        unit: °C
+      - name: Fan Speed
+        slave: 1
+        register: 100
+        scale: 1
+        offset: 0
+      - name: Temperature set
+        slave: 1
+        register: 206
+      - name: Supply air
+        unit_of_measurement: °C
+        slave: 1
+        register: 213
         scale: 0.1
         precision: 1
-      214:
-        name: Extract air
-        unit: °C
+      - name: Extract air
+        unit_of_measurement: °C
+        slave: 1
+        register: 214
         scale: 0.1
         precision: 1
-      215:
-        name: Exhaust air
-        unit: °C
+      - name: Exhaust air
+        unit_of_measurement: °C
+        slave: 1
+        register: 215
         scale: 0.1
         precision: 1
-      601:
-        name: Filter age
-        unit: days
-      602:
-        name: Replace in
-        unit: months
+      - name: Filter age
+        unit_of_measurement: days
+        slave: 1
+        register: 601
+      - name: Replace in
+        unit_of_measurement: months
+        slave: 1
+        register: 602
 
 verisure: !include verisure.yaml
 
@@ -272,11 +278,12 @@ automation:
       platform: state
       entity_id: input_slider.fan_speed
     action:
-      service: modbus.write_registers
-      data_template:
+      service: modbus.write_register
+      data:
         unit: 1
         address: 100
-        values: '{{ [states.input_slider.fan_speed.state] }}'
+      data_template:
+        value: '{{ states.input_slider.fan_speed.state|int }}'
 
   - alias: Set fan speed slider value
     trigger:
@@ -293,12 +300,13 @@ automation:
       platform: state
       entity_id: input_slider.temperature_set
     action:
-      service: modbus.write_registers
+      service: modbus.write_register
+      data:
+          unit: 1
+          address: 206
       data_template:
-        unit: 1
-        address: 206
-        values: '{{ [states.input_slider.temperature_set.state] }}'
-  
+          value: '{{ states.input_slider.temperature_set.state|int }}'
+
   - alias: Set temperature set slider value
     trigger:
       platform: state
@@ -328,16 +336,19 @@ input_slider:
     max: 100
     initial: 35
     step: 1
+    unit_of_measurement: '%'
   fan_speed:
     name: Fan speed
     min: 1
     max: 3
     step: 1
+    unit_of_measurement: step
   temperature_set:
     name: Temperature set
     min: 1
     max: 3
     step: 1
+    unit_of_measurement: step
 
 script:
   start_radio:
@@ -360,7 +371,7 @@ script:
           media_content_type: video/mp4
           media_content_id: >
             {% if is_state('input_select.kanal', 'Radio Paradise') %}
-              http://stream-dc1.radioparadise.com/rp_192m.ogg
+              http://stream-uk1.radioparadise.com/rp_192.ogg
             {% elif is_state('input_select.kanal', 'P1') %}
               http://sverigesradio.se/topsy/direkt/132-hi-mp3
             {% elif is_state('input_select.kanal', 'P3') %}
