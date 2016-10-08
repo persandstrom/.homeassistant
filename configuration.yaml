@@ -26,13 +26,7 @@ homeassistant:
       hidden: true
     group.Switch:
       hidden: true
-    media_player.kodi:
-      hidden: true
     media_player.tak:
-      hidden: true
-    media_player.tvcast:
-      hidden: true
-    media_player.kdl55w808c:
       hidden: true
 
 http: !include http.yaml
@@ -101,8 +95,6 @@ sensor:
 
 verisure: !include verisure.yaml
 
-discovery:
-
 frontend:
 
 conversation:
@@ -162,6 +154,10 @@ group:
     - sensor.supply_air
     - sensor.extract_air
     - sensor.exhaust_air
+
+media_player:
+  - platform: cast
+    host: 192.168.1.206
 
 automation:
   - alias: Change radio volume
