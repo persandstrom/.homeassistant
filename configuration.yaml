@@ -160,6 +160,86 @@ media_player:
     host: 192.168.1.206
 
 automation:
+  - alias: tak remote on
+    trigger:
+      - platform: state
+        entity_id: switch.remotepower
+    condition:
+      condition: state
+      entity_id: switch.remotepower
+      state: 'on'
+    action:
+      entity_id: input_select.kanal
+      service: input_select.select_option
+      data:
+        option: "Radio Paradise"
+  
+  - alias: tak remote off
+    trigger:
+      - platform: state
+        entity_id: switch.remotepower
+    condition:
+      condition: state
+      entity_id: switch.remotepower
+      state: 'off'
+    action:
+      entity_id: input_select.kanal
+      service: input_select.select_option
+      data:
+        option: "Av"
+  
+  - alias: tak remote swich station next
+    trigger:
+      - platform: state
+        entity_id: switch.remotechannel
+    condition:
+      condition: state
+      entity_id: switch.remotechannel
+      state: 'off'
+    action:
+      entity_id: input_select.kanal
+      service: input_select.select_next
+  
+  - alias: tak remote switch station previous
+    trigger:
+      - platform: state
+        entity_id: switch.remotechannel
+    condition:
+      condition: state
+      entity_id: switch.remotechannel
+      state: 'on'
+    action:
+      entity_id: input_select.kanal
+      service: input_select.select_previous
+  
+  - alias: tak remote volume up
+    trigger:
+      - platform: state
+        entity_id: switch.remotevolume
+    condition:
+      condition: state
+      entity_id: switch.remotevolume
+      state: 'off'
+    action:
+      service: input_slider.select_value
+      entity_id: input_slider.radio_volume
+      data_template:
+        value: '{{ float(states.input_slider.radio_volume.state) + 10 }}'
+  
+  - alias: tak remote volume down
+    trigger:
+      - platform: state
+        entity_id: switch.remotevolume
+    condition:
+      condition: state
+      entity_id: switch.remotevolume
+      state: 'on'
+    action:
+      service: input_slider.select_value
+      entity_id: input_slider.radio_volume
+      data_template:
+        value: '{{ float(states.input_slider.radio_volume.state) - 10 }}'
+
   - alias: Change radio volume
     trigger:
       - platform: state
