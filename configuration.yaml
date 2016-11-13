@@ -29,14 +29,26 @@ homeassistant:
     media_player.tak:
       hidden: true
 
-http: !include http.yaml
+http:
+  api_password: !secret ha_api_password
+  # Set to 1 to enable development mode
+  # development: 1
 
-notify: !include telegram.yaml
+notify:
+    platform: telegram
+    api_key: !secret telegram_api_key 
+    chat_id: !secret telegram_chat_id 
 
 tellstick:
   signal_repetitions: 3
 
-device_tracker: !include devicetracker.yaml
+device_tracker:
+  platform: asuswrt
+  host: 192.168.1.1
+  username: !secret asuswrt_username
+  password: !secret asuswrt_password
+  track_new_devices: no
+  protocol: telnet
 
 modbus:
   type: serial
@@ -93,7 +105,13 @@ sensor:
         slave: 1
         register: 602
 
-verisure: !include verisure.yaml
+verisure:
+  username: !secret verisure_username
+  password: !secret verisure_password
+  thermometers: 1
+  hygrometers: 1
+  smartplugs: 1
+  alarm: 1
 
 frontend:
 
