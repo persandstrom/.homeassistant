@@ -35,9 +35,9 @@ http:
   # development: 1
 
 notify:
-    platform: telegram
-    api_key: !secret telegram_api_key 
-    chat_id: !secret telegram_chat_id 
+  platform: telegram
+  api_key: !secret telegram_api_key 
+  chat_id: !secret telegram_chat_id 
 
 tellstick:
   signal_repetitions: 3
@@ -421,6 +421,7 @@ input_select:
       - P3
       - P4
       - Radioapan
+      - P4 Bjällerklang
     initial: Av
 
 input_slider:
@@ -474,4 +475,6 @@ script:
               http://sverigesradio.se/topsy/direkt/212-hi-mp3
             {% elif is_state('input_select.kanal', 'Radioapan') %}
               http://sverigesradio.se/topsy/direkt/2755-hi-mp3
+            {% elif is_state('input_select.kanal', 'P4 Bjällerklang') %}
+              http://sverigesradio.se/topsy/direkt/3034-hi-mp3
             {% endif %}
