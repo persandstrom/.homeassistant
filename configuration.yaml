@@ -33,10 +33,16 @@ http:
   # Set to 1 to enable development mode
   # development: 1
 
+telegram_bot:
+  - palatform: polling
+    api_key: !secret telegram_api_key
+    allowed_chat_ids:
+      - !secret telegram_chat_id
+
 notify:
-  platform: telegram
-  api_key: !secret telegram_api_key 
-  chat_id: !secret telegram_chat_id 
+  - name: home_telegram
+    platform: telegram
+    chat_id: !secret telegram_chat_id 
 
 tellstick:
   signal_repetitions: 3
@@ -282,7 +288,7 @@ automation:
 #        entity_id: switch.Takfonster2
 #        state: 'on'
 #    action:
-#      service: notify.notify
+#      service: notify.home_telegram
 #      data:
 #        message: Roof window open
 
@@ -320,7 +326,7 @@ automation:
       - platform: state 
         entity_id: alarm_control_panel.alarm_1
     action:
-      service: notify.notify
+      service: notify.home_telegram
       data:
         title: alarm
       data_template:
@@ -337,7 +343,7 @@ automation:
         entity_id: switch.ringklocka
         state: 'on'
     action:
-      service: notify.notify
+      service: notify.home_telegram
       data:
         title: ringklocka
         message: ding dong
