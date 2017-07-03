@@ -4,8 +4,7 @@ homeassistant:
   # Location required to calculate the time the sun rises and sets
   latitude: 57.43
   longitude: 11.59
-  # C for Celcius, F for Fahrenheit
-  temperature_unit: C
+  unit_system: metric
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   time_zone: Europe/Stockholm
 
