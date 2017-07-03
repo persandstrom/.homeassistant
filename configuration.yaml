@@ -34,7 +34,7 @@ http:
   # development: 1
 
 telegram_bot:
-  - palatform: polling
+  - platform: polling
     api_key: !secret telegram_api_key
     allowed_chat_ids:
       - !secret telegram_chat_id
@@ -313,10 +313,10 @@ automation:
     trigger:
       - platform: state
         entity_id: alarm_control_panel.alarm_1
-        state: 'armed_away'
+        to: 'armed_away'
       - platform: state
         entity_id: input_select.kanal
-        state: Av
+        to: Av
     action:
       service: media_player.media_pause
       entity_id: media_player.tak
@@ -359,7 +359,7 @@ automation:
   - alias: Turn off third floor window light in the evening
     trigger:
       platform: time
-      after: '22:30:00'
+      at: '22:30:00'
     action:
       service: homeassistant.turn_off
       entity_id: group.fnster
