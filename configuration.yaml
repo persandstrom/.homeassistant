@@ -108,7 +108,7 @@ sensor:
       - name: Replace in
         unit_of_measurement: months
         slave: 1
-        register: 602
+        register: 600
 
 verisure:
   username: !secret verisure_username
