@@ -27,6 +27,8 @@ homeassistant:
       hidden: true
     media_player.tak:
       hidden: true
+    media_player.musik_hogst_upp:
+      hidden: true
 
 http:
   api_password: !secret ha_api_password
@@ -149,7 +151,7 @@ group:
   Radio:
     - media_player.tak
     - input_select.kanal
-    - input_slider.radio_volume
+    - input_number.radio_volume
   Temperatur:
     - sensor.frys_temperature
     - sensor.hall_nere_temperature
@@ -165,9 +167,9 @@ group:
     - sensor.ute_temperature_2
   Ventilation:
     - sensor.fan_speed
-    - input_slider.fan_speed
+    - input_number.fan_speed
     - sensor.temperature_set
-    - input_slider.temperature_set
+    - input_number.temperature_set
     - sensor.filter_age
     - sensor.replace_in
     - sensor.supply_air
@@ -177,6 +179,8 @@ group:
 media_player:
   - platform: cast
     host: 192.168.1.206
+  - platform: cast
+    host: 192.168.1.174
 
 automation:
   - alias: tak remote on
@@ -240,10 +244,10 @@ automation:
       entity_id: switch.remotevolume
       state: 'off'
     action:
-      service: input_slider.select_value
-      entity_id: input_slider.radio_volume
+      service: input_number.select_value
+      entity_id: input_number.radio_volume
       data_template:
-        value: '{{ float(states.input_slider.radio_volume.state) + 10 }}'
+        value: '{{ float(states.input_number.radio_volume.state) + 10 }}'
   
   - alias: tak remote volume down
     trigger:
@@ -254,20 +258,20 @@ automation:
       entity_id: switch.remotevolume
       state: 'on'
     action:
-      service: input_slider.select_value
-      entity_id: input_slider.radio_volume
+      service: input_number.select_value
+      entity_id: input_number.radio_volume
       data_template:
-        value: '{{ float(states.input_slider.radio_volume.state) - 10 }}'
+        value: '{{ float(states.input_number.radio_volume.state) - 10 }}'
 
   - alias: Change radio volume
     trigger:
       - platform: state
-        entity_id: input_slider.radio_volume
+        entity_id: input_number.radio_volume
     action:
       service: media_player.volume_set
       entity_id: media_player.tak
       data_template:
-        volume_level: '{{ float(states.input_slider.radio_volume.state) / 100 }}'
+        volume_level: '{{ float(states.input_number.radio_volume.state) / 100 }}'
 
 #  - alias: Roof window open warning
 #    trigger:
@@ -371,45 +375,45 @@ automation:
   - alias: Set fan speed
     trigger:
       platform: state
-      entity_id: input_slider.fan_speed
+      entity_id: input_number.fan_speed
     action:
       service: modbus.write_register
       data:
         unit: 1
         address: 100
       data_template:
-        value: '{{ states.input_slider.fan_speed.state|int }}'
+        value: '{{ states.input_number.fan_speed.state|int }}'
 
-  - alias: Set fan speed slider value
+  - alias: Set fan speed number value
     trigger:
       platform: state
       entity_id: sensor.fan_speed
     action:
-      service: input_slider.select_value
+      service: input_number.select_value
       data_template:
-        entity_id: input_slider.fan_speed
+        entity_id: input_number.fan_speed
         value: '{{ states.sensor.fan_speed.state }}'
   
   - alias: Set temperature set
     trigger:
       platform: state
-      entity_id: input_slider.temperature_set
+      entity_id: input_number.temperature_set
     action:
       service: modbus.write_register
       data:
           unit: 1
           address: 206
       data_template:
-          value: '{{ states.input_slider.temperature_set.state|int }}'
+          value: '{{ states.input_number.temperature_set.state|int }}'
 
-  - alias: Set temperature set slider value
+  - alias: Set temperature set number value
     trigger:
       platform: state
       entity_id: sensor.temperature_set
     action:
-      service: input_slider.select_value
+      service: input_number.select_value
       data_template:
-        entity_id: input_slider.temperature_set
+        entity_id: input_number.temperature_set
         value: '{{ states.sensor.temperature_set.state }}'
   
 input_select:
@@ -425,7 +429,7 @@ input_select:
       - P4 Bjällerklang
     initial: Av
 
-input_slider:
+input_number:
   radio_volume:
     name: Volym
     min: 0
@@ -459,7 +463,7 @@ script:
         data:      
           entity_id: media_player.tak
         data_template:
-          volume_level: '{{ float(states.input_slider.radio_volume.state) / 100 }}'
+          volume_level: '{{ float(states.input_number.radio_volume.state) / 100 }}'
       - alias: Play
         service: media_player.play_media
         data_template:
