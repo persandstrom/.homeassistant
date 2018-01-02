@@ -21,14 +21,21 @@ homeassistant:
       hidden: true
     script.sr_radioapan:
       hidden: true
-    script.start_radio:
+    script.start_radio_1:
+      hidden: true
+    script.start_radio_3:
       hidden: true
     group.Switch:
       hidden: true
-    media_player.tak:
+    media_player.radio_1:
       hidden: true
-    media_player.musik_hogst_upp:
+    media_player.radio_3:
       hidden: true
+  
+logger:
+  default: info
+  logs:
+    urllib3.connectionpool: critical
 
 http:
   api_password: !secret ha_api_password
@@ -148,10 +155,14 @@ group:
   Fönster:
     - switch.van3_fonster1
     - switch.van3_fonster2
-  Radio:
-    - media_player.tak
-    - input_select.kanal
-    - input_number.radio_volume
+  Radio1:
+    - media_player.radio_1
+    - input_select.radio_1_kanal
+    - input_number.radio_1_volume
+  Radio3:
+    - media_player.radio_3
+    - input_select.radio_3_kanal
+    - input_number.radio_3_volume
   Temperatur:
     - sensor.frys_temperature
     - sensor.hall_nere_temperature
@@ -183,7 +194,7 @@ media_player:
     host: 192.168.1.174
 
 automation:
-  - alias: tak remote on
+  - alias: radio_1 remote on
     trigger:
       - platform: state
         entity_id: switch.remotepower
@@ -192,12 +203,12 @@ automation:
       entity_id: switch.remotepower
       state: 'on'
     action:
-      entity_id: input_select.kanal
+      entity_id: input_select.radio_1_kanal
       service: input_select.select_option
       data:
         option: "Radio Paradise"
   
-  - alias: tak remote off
+  - alias: radio_1 remote off
     trigger:
       - platform: state
         entity_id: switch.remotepower
@@ -206,12 +217,12 @@ automation:
       entity_id: switch.remotepower
       state: 'off'
     action:
-      entity_id: input_select.kanal
+      entity_id: input_select.radio_1_kanal
       service: input_select.select_option
       data:
         option: "Av"
   
-  - alias: tak remote swich station next
+  - alias: radio_1 remote swich station next
     trigger:
       - platform: state
         entity_id: switch.remotechannel
@@ -220,10 +231,10 @@ automation:
       entity_id: switch.remotechannel
       state: 'off'
     action:
-      entity_id: input_select.kanal
+      entity_id: input_select.radio_1_kanal
       service: input_select.select_next
   
-  - alias: tak remote switch station previous
+  - alias: radio_1 remote switch station previous
     trigger:
       - platform: state
         entity_id: switch.remotechannel
@@ -232,10 +243,10 @@ automation:
       entity_id: switch.remotechannel
       state: 'on'
     action:
-      entity_id: input_select.kanal
+      entity_id: input_select.radio_1_kanal
       service: input_select.select_previous
   
-  - alias: tak remote volume up
+  - alias: radio_1 remote volume up
     trigger:
       - platform: state
         entity_id: switch.remotevolume
@@ -244,12 +255,12 @@ automation:
       entity_id: switch.remotevolume
       state: 'off'
     action:
-      service: input_number.select_value
+      service: input_number.set_value
       entity_id: input_number.radio_volume
       data_template:
         value: '{{ float(states.input_number.radio_volume.state) + 10 }}'
   
-  - alias: tak remote volume down
+  - alias: radio_1 remote volume down
     trigger:
       - platform: state
         entity_id: switch.remotevolume
@@ -258,20 +269,30 @@ automation:
       entity_id: switch.remotevolume
       state: 'on'
     action:
-      service: input_number.select_value
+      service: input_number.set_value
       entity_id: input_number.radio_volume
       data_template:
         value: '{{ float(states.input_number.radio_volume.state) - 10 }}'
 
-  - alias: Change radio volume
+  - alias: Change radio 1 volume
     trigger:
       - platform: state
-        entity_id: input_number.radio_volume
+        entity_id: input_number.radio_1_volume
     action:
       service: media_player.volume_set
-      entity_id: media_player.tak
+      entity_id: media_player.radio_1
       data_template:
-        volume_level: '{{ float(states.input_number.radio_volume.state) / 100 }}'
+        volume_level: '{{ float(states.input_number.radio_1_volume.state) / 100 }}'
+  
+  - alias: Change radio 3 volume
+    trigger:
+      - platform: state
+        entity_id: input_number.radio_3_volume
+    action:
+      service: media_player.volume_set
+      entity_id: media_player.radio_3
+      data_template:
+        volume_level: '{{ float(states.input_number.radio_3_volume.state) / 100 }}'
 
 #  - alias: Roof window open warning
 #    trigger:
@@ -315,11 +336,11 @@ automation:
         entity_id: alarm_control_panel.alarm_1
         to: 'armed_away'
       - platform: state
-        entity_id: input_select.kanal
+        entity_id: input_select.radio_1_kanal
         to: Av
     action:
       service: media_player.media_pause
-      entity_id: media_player.tak
+      entity_id: media_player.radio_1
 
   - alias: Notify alarm state
     trigger:
@@ -364,13 +385,21 @@ automation:
       service: homeassistant.turn_off
       entity_id: group.fnster
 
-  - alias: Start Radio
+  - alias: Start Radio 1
     trigger:
       platform: state
-      entity_id: input_select.kanal
+      entity_id: input_select.radio_1_kanal
     action:
       - entity_id: script.ON
-        service: script.start_radio
+        service: script.start_radio_1
+  
+  - alias: Start Radio 3
+    trigger:
+      platform: state
+      entity_id: input_select.radio_3_kanal
+    action:
+      - entity_id: script.ON
+        service: script.start_radio_3
 
   - alias: Set fan speed
     trigger:
@@ -389,7 +418,7 @@ automation:
       platform: state
       entity_id: sensor.fan_speed
     action:
-      service: input_number.select_value
+      service: input_number.set_value
       data_template:
         entity_id: input_number.fan_speed
         value: '{{ states.sensor.fan_speed.state }}'
@@ -411,13 +440,24 @@ automation:
       platform: state
       entity_id: sensor.temperature_set
     action:
-      service: input_number.select_value
+      service: input_number.set_value
       data_template:
         entity_id: input_number.temperature_set
         value: '{{ states.sensor.temperature_set.state }}'
   
 input_select:
-  kanal:
+  radio_1_kanal:
+    name: Kanal
+    options:
+      - Av
+      - Radio Paradise
+      - P1
+      - P3
+      - P4
+      - Radioapan
+      - P4 Bjällerklang
+    initial: Av
+  radio_3_kanal:
     name: Kanal
     options:
       - Av
@@ -430,7 +470,14 @@ input_select:
     initial: Av
 
 input_number:
-  radio_volume:
+  radio_1_volume:
+    name: Volym
+    min: 0
+    max: 100
+    initial: 35
+    step: 1
+    unit_of_measurement: '%'
+  radio_3_volume:
     name: Volym
     min: 0
     max: 100
@@ -451,35 +498,73 @@ input_number:
     unit_of_measurement: step
 
 script:
-  start_radio:
-    alias: Start Radio
+  start_radio_1:
+    alias: Start Radio 1
     sequence:
-      - alias: Power on    
+      - alias: Power on
         service: media_player.turn_on   
         data:
-          entity_id: media_player.tak     
+          entity_id: media_player.radio_1     
       - alias: Set volume  
         service: media_player.volume_set
         data:      
-          entity_id: media_player.tak
+          entity_id: media_player.radio_1
         data_template:
-          volume_level: '{{ float(states.input_number.radio_volume.state) / 100 }}'
+          volume_level: '{{ float(states.input_number.radio_1_volume.state) / 100 }}'
       - alias: Play
         service: media_player.play_media
         data_template:
-          entity_id: media_player.tak
+          entity_id: media_player.radio_1
           media_content_type: video/mp4
           media_content_id: >
-            {% if is_state('input_select.kanal', 'Radio Paradise') %}
+            {% if is_state('input_select.radio_1_kanal', 'Radio Paradise') %}
               http://stream-uk1.radioparadise.com/rp_192.ogg
-            {% elif is_state('input_select.kanal', 'P1') %}
+            {% elif is_state('input_select.radio_1_kanal', 'P1') %}
               http://sverigesradio.se/topsy/direkt/132-hi-mp3
-            {% elif is_state('input_select.kanal', 'P3') %}
+            {% elif is_state('input_select.radio_1_kanal', 'P3') %}
               http://sverigesradio.se/topsy/direkt/164-hi-mp3
-            {% elif is_state('input_select.kanal', 'P4') %}
+            {% elif is_state('input_select.radio_1_kanal', 'P4') %}
               http://sverigesradio.se/topsy/direkt/212-hi-mp3
-            {% elif is_state('input_select.kanal', 'Radioapan') %}
+            {% elif is_state('input_select.radio_1_kanal', 'Radioapan') %}
               http://sverigesradio.se/topsy/direkt/2755-hi-mp3
-            {% elif is_state('input_select.kanal', 'P4 Bjällerklang') %}
+            {% elif is_state('input_select.radio_1_kanal', 'P4 Bjällerklang') %}
               http://sverigesradio.se/topsy/direkt/3034-hi-mp3
             {% endif %}
+  start_radio_3:
+    alias: Start Radio 3
+    sequence:
+      - alias: Power on
+        service: media_player.turn_on   
+        data:
+          entity_id: media_player.radio_3     
+      - alias: Set volume  
+        service: media_player.volume_set
+        data:
+          entity_id: media_player.radio_3
+        data_template:
+          volume_level: '{{ float(states.input_number.radio_3_volume.state) / 100 }}'
+      - alias: Play
+        service: media_player.play_media
+        data_template:
+          entity_id: media_player.radio_3
+          media_content_type: video/mp4
+          media_content_id: >
+            {% if is_state('input_select.radio_3_kanal', 'Radio Paradise') %}
+              http://stream-uk1.radioparadise.com/rp_192.ogg
+            {% elif is_state('input_select.radio_3_kanal', 'P1') %}
+              http://sverigesradio.se/topsy/direkt/132-hi-mp3
+            {% elif is_state('input_select.radio_3_kanal', 'P3') %}
+              http://sverigesradio.se/topsy/direkt/164-hi-mp3
+            {% elif is_state('input_select.radio_3_kanal', 'P4') %}
+              http://sverigesradio.se/topsy/direkt/212-hi-mp3
+            {% elif is_state('input_select.radio_3_kanal', 'Radioapan') %}
+              http://sverigesradio.se/topsy/direkt/2755-hi-mp3
+            {% elif is_state('input_select.radio_3_kanal', 'P4 Bjällerklang') %}
+              http://sverigesradio.se/topsy/direkt/3034-hi-mp3
+            {% endif %}
+
+camera:
+  - platform: mjpeg
+    mjpeg_url: http://192.168.1.57:8080/video
+    username: !secret cam_username
+    password: !secret cam_password
