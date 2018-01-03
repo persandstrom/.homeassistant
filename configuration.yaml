@@ -7,31 +7,131 @@ homeassistant:
   unit_system: metric
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   time_zone: Europe/Stockholm
-
-  customize:
-    sun.sun:
-      hidden: true
-    script.radio_paradise:
-      hidden: true
-    script.sr_p1:
-      hidden: true
-    script.sr_p3:
-      hidden: true
-    script.sr_p4:
-      hidden: true
-    script.sr_radioapan:
-      hidden: true
-    script.start_radio_1:
-      hidden: true
-    script.start_radio_3:
-      hidden: true
-    group.Switch:
-      hidden: true
-    media_player.radio_1:
-      hidden: true
-    media_player.radio_3:
-      hidden: true
   
+  customize:
+    group.all_automations:
+      hidden: false
+    group.all_scripts:
+      hidden: false
+    group.all_devices:
+      hidden: false
+    group.all_switches:
+      hidden: false
+    group.all_lights:
+      hidden: false
+
+group:
+  default_view:
+    name: Start
+    view: yes
+    icon: mdi:home
+    entities:
+      - alarm_control_panel.transistorgatan_alarm
+      - device_tracker.androidd539a09108a17440
+      - device_tracker.elinsiphone
+      - group.radio_1
+      - group.radio_2
+  lights_view:
+    name: Belysning
+    view: yes
+    icon: mdi:lightbulb
+    entities:
+      - group.window_lights
+      - group.outdoor_lights
+  surveillance_view:
+    name: Övervakning
+    view: yes
+    icon: mdi:eye
+    entities:
+      - alarm_control_panel.transistorgatan_alarm
+      - device_tracker.androidd539a09108a17440
+      - device_tracker.elinsiphone
+      - group.doors
+      - camera.mjpeg_camera
+  ventilation_view:
+    name: Ventilation
+    view: yes
+    icon: mdi:fan
+    entities:
+      - group.ventilation
+  sensors_view:
+    name: Sensorer
+    view: yes
+    icon: mdi:thermometer
+    entities:
+      - group.thermometers
+      - group.hygrometers
+  automation_view:
+    name: Automation
+    view: yes
+    icon: mdi:home-automation
+    entities:
+      - group.all_automations
+  outdoor_lights:
+    name: Utebelysning
+    view: no
+    entities:
+      - switch.Baksida
+      - switch.Entre
+      - switch.Balkong
+  window_lights:
+    name: Fönsterbelysning
+    view: no
+    entities:
+      - switch.van3_fonster1
+      - switch.van3_fonster2
+  radio_1:
+    name: Radio vån 1
+    view: no
+    entities:
+      - input_select.radio_1_kanal
+      - input_number.radio_1_volume
+  radio_2:
+    name: Radio vån 3
+    view: no
+    entities:
+      - input_select.radio_3_kanal
+      - input_number.radio_3_volume
+  thermometers:
+    name: Temperatur
+    view: no
+    entities:
+      - sensor.frys_temperature
+      - sensor.hall_nere_temperature
+      - sensor.hall_uppe_temperature
+      - sensor.vardagsrum_temperature
+      - sensor.ute_temperature
+      - sensor.vning_3_temperature
+      - sensor.vind_temperature
+  hygrometers:
+    name: Fuktighet
+    view: no
+    entities:
+      - sensor.hall_nere_humidity
+      - sensor.hall_uppe_humidity
+      - sensor.ute_humidity
+      - sensor.ute_temperature_2
+  ventilation:
+    name: Ventilation
+    view: no
+    entities:
+      - sensor.fan_speed
+      - input_number.fan_speed
+      - sensor.temperature_set
+      - input_number.temperature_set
+      - sensor.filter_age
+      - sensor.replace_in
+      - sensor.supply_air
+      - sensor.extract_air
+      - sensor.exhaust_air
+  doors:
+    name: Dörrar
+    view: no
+    entities:
+      - binary_sensor.entredorr
+      - binary_sensor.altandorr
+      - binary_sensor.balkongdorr
+
 logger:
   default: info
   logs:
@@ -132,60 +232,6 @@ history:
 logbook:
 
 sun:
-
-group:
-  Belysning:
-    view: yes
-    entities:
-      - group.Ute
-      - group.Fnster
-  Multimedia:
-    view: yes
-    entities:
-      - group.Musik
-  Klimat:
-    view: yes
-    entities:
-      - group.Temperatur
-      - group.Fuktighet
-  Ute:
-    - switch.Baksida
-    - switch.Entre
-    - switch.Balkong
-  Fönster:
-    - switch.van3_fonster1
-    - switch.van3_fonster2
-  Radio1:
-    - media_player.radio_1
-    - input_select.radio_1_kanal
-    - input_number.radio_1_volume
-  Radio3:
-    - media_player.radio_3
-    - input_select.radio_3_kanal
-    - input_number.radio_3_volume
-  Temperatur:
-    - sensor.frys_temperature
-    - sensor.hall_nere_temperature
-    - sensor.hall_uppe_temperature
-    - sensor.vardagsrum_temperature
-    - sensor.ute_temperature
-    - sensor.vning_3_temperature
-    - sensor.vind_temperature
-  Fuktighet:
-    - sensor.hall_nere_humidity
-    - sensor.hall_uppe_humidity
-    - sensor.ute_humidity
-    - sensor.ute_temperature_2
-  Ventilation:
-    - sensor.fan_speed
-    - input_number.fan_speed
-    - sensor.temperature_set
-    - input_number.temperature_set
-    - sensor.filter_age
-    - sensor.replace_in
-    - sensor.supply_air
-    - sensor.extract_air
-    - sensor.exhaust_air
 
 media_player:
   - platform: cast
