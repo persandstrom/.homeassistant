@@ -256,9 +256,9 @@ automation:
       state: 'off'
     action:
       service: input_number.set_value
-      entity_id: input_number.radio_volume
+      entity_id: input_number.radio_1_volume
       data_template:
-        value: '{{ float(states.input_number.radio_volume.state) + 10 }}'
+        value: '{{ float(states.input_number.radio_1_volume.state) + 10 }}'
   
   - alias: radio_1 remote volume down
     trigger:
@@ -270,9 +270,9 @@ automation:
       state: 'on'
     action:
       service: input_number.set_value
-      entity_id: input_number.radio_volume
+      entity_id: input_number.radio_1_volume
       data_template:
-        value: '{{ float(states.input_number.radio_volume.state) - 10 }}'
+        value: '{{ float(states.input_number.radio_1_volume.state) - 10 }}'
 
   - alias: Change radio 1 volume
     trigger:
