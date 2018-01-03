@@ -61,6 +61,13 @@ group:
     entities:
       - group.thermometers
       - group.hygrometers
+  multimedia_view:
+    name: Multimedia
+    view: yes
+    icon: mdi:music
+    entities:
+      - media_player.radio_1
+      - media_player.radio_3
   automation_view:
     name: Automation
     view: yes
