@@ -68,6 +68,7 @@ group:
     entities:
       - media_player.radio_1
       - media_player.radio_3
+      - media_player.tv_1
   automation_view:
     name: Automation
     view: yes
@@ -245,6 +246,10 @@ media_player:
     host: 192.168.1.206
   - platform: cast
     host: 192.168.1.174
+  - platform: cast
+    host: 192.168.1.97
+  - platform: cast
+    host: 192.168.1.166
 
 automation:
   - alias: radio_1 remote on
@@ -373,7 +378,7 @@ automation:
       event: sunset
     action:
       service: homeassistant.turn_on
-      entity_id: group.Ute
+      entity_id: group.outdoor_lights
 
   - alias: Turn off lights outside at sunrise
     trigger:
@@ -381,7 +386,7 @@ automation:
       event: sunrise
     action:
       service: homeassistant.turn_off
-      entity_id: group.Ute
+      entity_id: group.outdoor_lights
 
   - alias: Turn off radio
     trigger:
@@ -428,7 +433,7 @@ automation:
       event: sunset
     action:
       service: homeassistant.turn_on
-      entity_id: group.fnster
+      entity_id: group.window_lights
 
   - alias: Turn off third floor window light in the evening
     trigger:
@@ -436,7 +441,7 @@ automation:
       at: '22:30:00'
     action:
       service: homeassistant.turn_off
-      entity_id: group.fnster
+      entity_id: group.window_lights
 
   - alias: Start Radio 1
     trigger:
