@@ -67,8 +67,9 @@ group:
     icon: mdi:music
     entities:
       - media_player.radio_1
-      - media_player.radio_3
       - media_player.tv_1
+      - media_player.radio_3
+      - media_player.tv_3
   automation_view:
     name: Automation
     view: yes
@@ -388,10 +389,27 @@ automation:
       service: homeassistant.turn_off
       entity_id: group.outdoor_lights
 
+  - alias: Turn on window lights floor three at sunset
+    trigger:
+      platform: sun
+      event: sunset
+      offset: '00:00:30'
+    action:
+      service: homeassistant.turn_on
+      entity_id: group.window_lights
+
+  - alias: Turn off third floor window light in the evening
+    trigger:
+      platform: time
+      at: '23:00:00'
+    action:
+      service: homeassistant.turn_off
+      entity_id: group.window_lights
+
   - alias: Turn off radio
     trigger:
       - platform: state
-        entity_id: alarm_control_panel.alarm_1
+        entity_id: alarm_control_panel.transistorgatan_alarm
         to: 'armed_away'
       - platform: state
         entity_id: input_select.radio_1_kanal
@@ -403,7 +421,7 @@ automation:
   - alias: Notify alarm state
     trigger:
       - platform: state 
-        entity_id: alarm_control_panel.alarm_1
+        entity_id: alarm_control_panel.transistorgatan_alarm
     action:
       service: notify.home_telegram
       data:
@@ -427,22 +445,6 @@ automation:
         title: ringklocka
         message: ding dong
   
-  - alias: Turn on window lights floor three at sunset
-    trigger:
-      platform: sun
-      event: sunset
-    action:
-      service: homeassistant.turn_on
-      entity_id: group.window_lights
-
-  - alias: Turn off third floor window light in the evening
-    trigger:
-      platform: time
-      at: '22:30:00'
-    action:
-      service: homeassistant.turn_off
-      entity_id: group.window_lights
-
   - alias: Start Radio 1
     trigger:
       platform: state
