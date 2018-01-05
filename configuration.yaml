@@ -38,6 +38,7 @@ group:
     entities:
       - group.window_lights
       - group.outdoor_lights
+      - group.indoor_lights
   surveillance_view:
     name: Övervakning
     view: yes
@@ -89,6 +90,12 @@ group:
     entities:
       - switch.van3_fonster1
       - switch.van3_fonster2
+  indoor_lights:
+    name: Inomhusbelysning
+    view: no
+    entities:
+      - switch.tvattstuga
+      - switch.garderob 
   radio_1:
     name: Radio vån 1
     view: no
@@ -119,7 +126,8 @@ group:
       - sensor.hall_nere_humidity
       - sensor.hall_uppe_humidity
       - sensor.ute_humidity
-      - sensor.ute_temperature_2
+      - sensor.vning_3_humidity
+      - sensor.vind_humidity
   ventilation:
     name: Ventilation
     view: no
@@ -189,7 +197,6 @@ sensor:
     31: Ute
     80: Våning 3
     53: Vind
-    datatype_mask: 1
   
   - platform: modbus
     registers:
@@ -372,7 +379,6 @@ automation:
 #      data:
 #        message: Roof window open
 
-
   - alias: Turn on lights outside at sunset
     trigger:
       platform: sun
@@ -398,13 +404,40 @@ automation:
       service: homeassistant.turn_on
       entity_id: group.window_lights
 
-  - alias: Turn off third floor window light in the evening
+  - alias: Turn off light in the evening
     trigger:
       platform: time
       at: '23:00:00'
     action:
-      service: homeassistant.turn_off
-      entity_id: group.window_lights
+      - entity_id: group.window_lights
+        service: homeassistant.turn_off
+      - entity_id: group.indoor_lights
+        service: homeassistant.turn_off
+  
+  - alias: Turn off lighs when alarm armed
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.transistorgatan_alarm
+        to: 'armed_away'
+    action:
+      - entity_id: switch.tvattstuga
+        service: homeassistant.turn_off
+      - entity_id: swtich.garderob
+        service: homeassistant.turn_off
+
+  - alias: Turn on laundry light when alarm disarmed
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.transistorgatan_alarm
+        from: 'armed_away'
+        to: 'disarmed'
+    condition:
+      - condition: time
+        after: '06:00:00'
+        before: '22:59:00'
+    action:
+      - entity_id: switch.tvattstuga
+        service: homeassistant.turn_off
 
   - alias: Turn off radio
     trigger:
