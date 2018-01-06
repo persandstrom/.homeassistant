@@ -399,7 +399,7 @@ automation:
     trigger:
       platform: sun
       event: sunset
-      offset: '00:00:30'
+      offset: '-01:00:00'
     action:
       service: homeassistant.turn_on
       entity_id: group.window_lights
@@ -425,6 +425,23 @@ automation:
       - entity_id: swtich.garderob
         service: homeassistant.turn_off
 
+  - alias: Turn on laundry lights in the morning
+    trigger:
+      - platform: time
+        at: '06:00:00'
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: alarm_control_panel.transistorgatan_alarm
+          state: 'armed_home'
+        - condition: state
+          entity_id: alarm_control_panel.transistorgatan_alarm
+          state: 'disarmed'
+    action:
+      - entity_id: switch.tvattstuga
+        service: homeassistant.turn_on
+  
   - alias: Turn on laundry light when alarm disarmed
     trigger:
       - platform: state
@@ -437,7 +454,7 @@ automation:
         before: '22:59:00'
     action:
       - entity_id: switch.tvattstuga
-        service: homeassistant.turn_off
+        service: homeassistant.turn_on
 
   - alias: Turn off radio
     trigger:
