@@ -465,8 +465,10 @@ automation:
         entity_id: input_select.radio_1_kanal
         to: Av
     action:
-      service: media_player.media_pause
-      entity_id: media_player.radio_1
+      - service: media_player.media_pause
+        entity_id: media_player.radio_1
+      - service: homeassistant.turn_off
+        entity_id: switch.radio1switch
 
   - alias: Notify alarm state
     trigger:
@@ -500,6 +502,8 @@ automation:
       platform: state
       entity_id: input_select.radio_1_kanal
     action:
+      - entity_id: switch.radio1switch
+        service: homeassistant.turn_on
       - entity_id: script.ON
         service: script.start_radio_1
   
