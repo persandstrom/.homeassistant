@@ -31,14 +31,15 @@ group:
       - device_tracker.elinsiphone
       - group.radio_1
       - group.radio_2
-  lights_view:
-    name: Belysning
+  switch_view:
+    name: Belysning och brytare
     view: yes
     icon: mdi:lightbulb
     entities:
       - group.window_lights
       - group.outdoor_lights
       - group.indoor_lights
+      - group.switches
   surveillance_view:
     name: Övervakning
     view: yes
@@ -95,7 +96,13 @@ group:
     view: no
     entities:
       - switch.tvattstuga
-      - switch.garderob 
+      - switch.garderob
+  switches:
+    name: Brytare
+    view: no
+    entities:
+      - switch.pertelefon
+      - switch.radio1switch
   radio_1:
     name: Radio vån 1
     view: no
@@ -195,7 +202,7 @@ sensor:
     only_named: 1
     11: Frys
     31: Ute
-    80: Våning 3
+    114: Våning 3
     53: Vind
   
   - platform: modbus
@@ -425,6 +432,17 @@ automation:
       - entity_id: swtich.garderob
         service: homeassistant.turn_off
 
+  - alias: Turn off wardrobe light after X minutes
+    trigger:
+      - platform: state
+        entity_id: switch.garderob
+        to: 'on'
+        for:
+          minutes: 5
+    action:
+      - entity_id: switch.garderob
+        service: homeassistant.turn_off
+
   - alias: Turn on laundry lights in the morning
     trigger:
       - platform: time
@@ -455,6 +473,25 @@ automation:
     action:
       - entity_id: switch.tvattstuga
         service: homeassistant.turn_on
+
+  - alias: Start phone charger in the morning
+    trigger:
+      - platform: time
+        at: '05:00:00'
+    action:
+      - entity_id: switch.pertelefon
+        service: homeassistant.turn_on
+
+  - alias: Trun off phone charger after one hour
+    trigger:
+      - platform: state
+        entity_id: switch.pertelefon
+        to: 'on'
+        for:
+          minutes: 60
+    action:
+      - entity_id: switch.pertelefon
+        service: homeassistant.turn_off
 
   - alias: Turn off radio
     trigger:
