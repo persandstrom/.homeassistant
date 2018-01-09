@@ -89,6 +89,7 @@ group:
     name: Fönsterbelysning
     view: no
     entities:
+      - light.sovrumsfonster
       - switch.van3_fonster1
       - switch.van3_fonster2
   indoor_lights:
@@ -101,6 +102,7 @@ group:
     name: Brytare
     view: no
     entities:
+      - switch.elintelefon
       - switch.pertelefon
       - switch.radio1switch
   radio_1:
@@ -119,12 +121,13 @@ group:
     name: Temperatur
     view: no
     entities:
+      - sensor.thermometer_hygrometer_floor_3
       - sensor.frys_temperature
       - sensor.hall_nere_temperature
       - sensor.hall_uppe_temperature
       - sensor.vardagsrum_temperature
       - sensor.ute_temperature
-      - sensor.vning_3_temperature
+      - sensor.vaning_3_temperature
       - sensor.vind_temperature
   hygrometers:
     name: Fuktighet
@@ -133,7 +136,7 @@ group:
       - sensor.hall_nere_humidity
       - sensor.hall_uppe_humidity
       - sensor.ute_humidity
-      - sensor.vning_3_humidity
+      - sensor.vaning_3_humidity
       - sensor.vind_humidity
   ventilation:
     name: Ventilation
@@ -204,6 +207,23 @@ sensor:
     31: Ute
     114: Våning 3
     53: Vind
+
+  - platform: template
+    sensors:
+      thermometer_hygrometer_floor_3:
+        friendly_name: "Våning 3"
+        entity_id:
+          - sensor.vaning_3_temperature
+          - sensor.vaning_3_humidity
+        value_template: "{{ states.sensor.vaning_3_temperature.state }}°C / {{ states.sensor.vaning_3_humidity.state }}%"
+        icon_template: mdi:thermometer 
+      thermometer_hygrometer_freezer:
+        friendly_name: "Frys"
+        entity_id:
+          - sensor.frys_temperature
+          - sensor.frys_humidity
+        value_template: "{{ states.sensor.frys_temperature.state }}°C / {{ states.sensor.frys_humidity.state }}%"
+        icon_template: mdi:thermometer 
   
   - platform: modbus
     registers:
@@ -406,11 +426,11 @@ automation:
     trigger:
       platform: sun
       event: sunset
-      offset: '-01:00:00'
+      offset: '-00:15:00'
     action:
       service: homeassistant.turn_on
       entity_id: group.window_lights
-
+  
   - alias: Turn off light in the evening
     trigger:
       platform: time
@@ -420,6 +440,23 @@ automation:
         service: homeassistant.turn_off
       - entity_id: group.indoor_lights
         service: homeassistant.turn_off
+  
+  - alias: Turn on window lights in bedroom at sunset
+    trigger:
+      platform: sun
+      event: sunset
+      offset: '-00:20:00'
+    action:
+      service: homeassistant.turn_on
+      entity_id: light.sovrumsfonster
+  
+  - alias: Turn off window lights in bedroom at sunset
+    trigger:
+      platform: time
+      at: '23:20:00'
+    action:
+      service: homeassistant.turn_off
+      entity_id: light.sovrumsfonster
   
   - alias: Turn off lighs when alarm armed
     trigger:
@@ -481,6 +518,8 @@ automation:
     action:
       - entity_id: switch.pertelefon
         service: homeassistant.turn_on
+      - entity_id: switch.elintelefon
+        service: homeassistant.turn_on
 
   - alias: Trun off phone charger after one hour
     trigger:
@@ -491,6 +530,8 @@ automation:
           minutes: 60
     action:
       - entity_id: switch.pertelefon
+        service: homeassistant.turn_off
+      - entity_id: switch.elintelefon
         service: homeassistant.turn_off
 
   - alias: Turn off radio
