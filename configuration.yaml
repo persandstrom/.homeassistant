@@ -510,15 +510,21 @@ automation:
     action:
       - entity_id: switch.tvattstuga
         service: homeassistant.turn_on
+  
+  - alias: Start elins phone charger in the morning
+    trigger:
+      - platform: time
+        at: '04:00:00'
+    action:
+      - entity_id: switch.pertelefon
+        service: homeassistant.turn_on
 
-  - alias: Start phone charger in the morning
+  - alias: Start pers phone charger in the morning
     trigger:
       - platform: time
         at: '05:00:00'
     action:
       - entity_id: switch.pertelefon
-        service: homeassistant.turn_on
-      - entity_id: switch.elintelefon
         service: homeassistant.turn_on
 
   - alias: Trun off phone charger after one hour
