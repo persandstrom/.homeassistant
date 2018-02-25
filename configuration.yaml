@@ -61,8 +61,9 @@ group:
     view: yes
     icon: mdi:thermometer
     entities:
-      - group.thermometers
-      - group.hygrometers
+      - group.climate
+      - binary_sensor.freezer_open
+#      - group.backup
   multimedia_view:
     name: Multimedia
     view: yes
@@ -98,6 +99,7 @@ group:
     entities:
       - switch.tvattstuga
       - switch.garderob
+      - switch.hallampa
   switches:
     name: Brytare
     view: no
@@ -117,27 +119,16 @@ group:
     entities:
       - input_select.radio_3_kanal
       - input_number.radio_3_volume
-  thermometers:
-    name: Temperatur
+  climate:
+    name: Klimat
     view: no
     entities:
+      - sensor.thermometer_hygrometer_hallway_floor_1
+      - sensor.thermometer_hygrometer_hallway_floor_2
       - sensor.thermometer_hygrometer_floor_3
-      - sensor.frys_temperature
-      - sensor.hall_nere_temperature
-      - sensor.hall_uppe_temperature
-      - sensor.vardagsrum_temperature
-      - sensor.ute_temperature
-      - sensor.vaning_3_temperature
-      - sensor.vind_temperature
-  hygrometers:
-    name: Fuktighet
-    view: no
-    entities:
-      - sensor.hall_nere_humidity
-      - sensor.hall_uppe_humidity
-      - sensor.ute_humidity
-      - sensor.vaning_3_humidity
-      - sensor.vind_humidity
+      - sensor.thermometer_hygrometer_outdoor
+      - sensor.thermometer_hygrometer_attic
+      - sensor.thermometer_hygrometer_freezer
   ventilation:
     name: Ventilation
     view: no
@@ -158,6 +149,11 @@ group:
       - binary_sensor.entredorr
       - binary_sensor.altandorr
       - binary_sensor.balkongdorr
+#  backup:
+#    name: Backup
+#    view: no
+#    entities:
+#      - sensor.cloud_storage_size
 
 logger:
   default: info
@@ -166,6 +162,8 @@ logger:
 
 http:
   api_password: !secret ha_api_password
+  ssl_certificate: /home/per/conf/server-all.crt
+  ssl_key: /home/per/conf/server.key
   # Set to 1 to enable development mode
   # development: 1
 
@@ -201,6 +199,12 @@ modbus:
   parity: N
 
 sensor:
+#  - platform: command_line
+#    name: cloud_storage_size
+#    command: "gsutil du -sh gs://all-our-files/Pictures | awk '{ print $1 }'"
+#    unit_of_measurement: "GiB"
+#    scan_interval: 3600
+
   - platform: tellstick
     only_named: 1
     11: Frys
@@ -224,6 +228,42 @@ sensor:
           - sensor.frys_humidity
         value_template: "{{ states.sensor.frys_temperature.state }}°C / {{ states.sensor.frys_humidity.state }}%"
         icon_template: mdi:thermometer 
+      thermometer_hygrometer_hallway_floor_1:
+        friendly_name: "Våning 1"
+        entity_id:
+          - sensor.hall_nere_temperature
+          - sensor.hall_nere_humidity
+        value_template: "{{ states.sensor.hall_nere_temperature.state }}°C / {{ states.sensor.hall_nere_humidity.state }}%"
+        icon_template: mdi:thermometer 
+      thermometer_hygrometer_hallway_floor_2:
+        friendly_name: "Våning 2"
+        entity_id:
+          - sensor.hall_uppe_temperature
+          - sensor.hall_uppe_humidity
+        value_template: "{{ states.sensor.hall_uppe_temperature.state }}°C / {{ states.sensor.hall_uppe_humidity.state }}%"
+        icon_template: mdi:thermometer
+      thermometer_hygrometer_outdoor:
+        friendly_name: "Ute"
+        entity_id:
+          - sensor.ute_temperature
+          - sensor.ute_humidity
+        value_template: "{{ states.sensor.ute_temperature.state }}°C / {{ states.sensor.ute_humidity.state }}%"
+        icon_template: mdi:thermometer
+      thermometer_hygrometer_attic:
+        friendly_name: "Vind"
+        entity_id:
+          - sensor.vind_temperature
+          - sensor.vind_humidity
+        value_template: "{{ states.sensor.vind_temperature.state }}°C / {{ states.sensor.vind_humidity.state }}%"
+        icon_template: mdi:thermometer
+        
+  
+  - platform: statistics
+    entity_id: sensor.frys_temperature
+    name: Freezer Temp
+    sampling_size: 400
+    max_age:
+      minutes: 60
   
   - platform: modbus
     registers:
@@ -257,6 +297,14 @@ sensor:
         unit_of_measurement: days
         slave: 1
         register: 601
+
+binary_sensor:
+  - platform: template
+    sensors:
+      freezer_open:
+        friendly_name: "Frys öppen"
+        value_template: >
+          {{ (states.sensor.frys_temperature.state|float) + 1 < (states.sensor.freezer_temp_mean.state)|float }}
 
 verisure:
   username: !secret verisure_username
@@ -414,13 +462,15 @@ automation:
       service: homeassistant.turn_on
       entity_id: group.outdoor_lights
 
-  - alias: Turn off lights outside at sunrise
+  - alias: Turn off window and outdoor lights at sunrise
     trigger:
       platform: sun
       event: sunrise
     action:
-      service: homeassistant.turn_off
-      entity_id: group.outdoor_lights
+      - service: homeassistant.turn_off
+        entity_id: group.outdoor_lights
+      - service: homeassistant.turn_off
+        entity_id: group.window_lights
 
   - alias: Turn on window lights floor three at sunset
     trigger:
@@ -516,8 +566,19 @@ automation:
       - platform: time
         at: '04:00:00'
     action:
-      - entity_id: switch.pertelefon
+      - entity_id: switch.elintelefon
         service: homeassistant.turn_on
+  
+  - alias: Trun off elins phone charger after two hours
+    trigger:
+      - platform: state
+        entity_id: switch.elintelefon
+        to: 'on'
+        for:
+          minutes: 120
+    action:
+      - entity_id: switch.elintelefon
+        service: homeassistant.turn_off
 
   - alias: Start pers phone charger in the morning
     trigger:
@@ -527,7 +588,7 @@ automation:
       - entity_id: switch.pertelefon
         service: homeassistant.turn_on
 
-  - alias: Trun off phone charger after one hour
+  - alias: Trun off pers phone charger after one hour
     trigger:
       - platform: state
         entity_id: switch.pertelefon
@@ -536,8 +597,6 @@ automation:
           minutes: 60
     action:
       - entity_id: switch.pertelefon
-        service: homeassistant.turn_off
-      - entity_id: switch.elintelefon
         service: homeassistant.turn_off
 
   - alias: Turn off radio
@@ -642,7 +701,7 @@ automation:
       data_template:
         entity_id: input_number.temperature_set
         value: '{{ states.sensor.temperature_set.state }}'
-  
+
 input_select:
   radio_1_kanal:
     name: Kanal
