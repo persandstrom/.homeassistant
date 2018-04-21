@@ -56,6 +56,13 @@ group:
     icon: mdi:fan
     entities:
       - group.ventilation
+  cover_view:
+    name: Markiser
+    view: yes
+    icon: mdi:weather-sunset
+    entities:
+      - cover.sovrum
+      - cover.terrass
   sensors_view:
     name: Sensorer
     view: yes
@@ -63,7 +70,6 @@ group:
     entities:
       - group.climate
       - binary_sensor.freezer_open
-#      - group.backup
   multimedia_view:
     name: Multimedia
     view: yes
@@ -90,7 +96,7 @@ group:
     name: Fönsterbelysning
     view: no
     entities:
-      - light.sovrumsfonster
+      - switch.sovrumsfonster
       - switch.van3_fonster1
       - switch.van3_fonster2
   indoor_lights:
@@ -149,11 +155,18 @@ group:
       - binary_sensor.entredorr
       - binary_sensor.altandorr
       - binary_sensor.balkongdorr
-#  backup:
-#    name: Backup
-#    view: no
-#    entities:
-#      - sensor.cloud_storage_size
+
+rfxtrx:
+  device: /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A129KL64-if00-port0
+
+cover:
+  - platform: rfxtrx
+    signal_repetitions: 2
+    devices:
+      071a03000a0b0c01:
+        name: Sovrum
+      071a03000a0b0d01:
+        name: Terrass
 
 logger:
   default: info
@@ -162,8 +175,8 @@ logger:
 
 http:
   api_password: !secret ha_api_password
-  ssl_certificate: /home/per/conf/server-all.crt
-  ssl_key: /home/per/conf/server.key
+  ssl_certificate: /home/homeassistant/cert/server-all.crt
+  ssl_key: /home/homeassistant/cert/server.key
   # Set to 1 to enable development mode
   # development: 1
 
@@ -178,8 +191,8 @@ notify:
     platform: telegram
     chat_id: !secret telegram_chat_id 
 
-tellstick:
-  signal_repetitions: 3
+#tellstick:
+#  signal_repetitions: 3
 
 device_tracker:
   platform: asuswrt
@@ -199,18 +212,19 @@ modbus:
   parity: N
 
 sensor:
-#  - platform: command_line
-#    name: cloud_storage_size
-#    command: "gsutil du -sh gs://all-our-files/Pictures | awk '{ print $1 }'"
-#    unit_of_measurement: "GiB"
-#    scan_interval: 3600
-
-  - platform: tellstick
-    only_named: 1
-    11: Frys
-    31: Ute
-    114: Våning 3
-    53: Vind
+  - platform: rfxtrx
+#   automatic_add: true
+    devices:
+      0a5201023501009d330060:
+        name: Vind
+        data_type:
+          - Temperature
+          - Humidity
+      0a520106720200d81e0279:
+        name: Våning 3
+        data_type:
+          - Temperature
+          - Humidity
 
   - platform: template
     sensors:
@@ -220,13 +234,6 @@ sensor:
           - sensor.vaning_3_temperature
           - sensor.vaning_3_humidity
         value_template: "{{ states.sensor.vaning_3_temperature.state }}°C / {{ states.sensor.vaning_3_humidity.state }}%"
-        icon_template: mdi:thermometer 
-      thermometer_hygrometer_freezer:
-        friendly_name: "Frys"
-        entity_id:
-          - sensor.frys_temperature
-          - sensor.frys_humidity
-        value_template: "{{ states.sensor.frys_temperature.state }}°C / {{ states.sensor.frys_humidity.state }}%"
         icon_template: mdi:thermometer 
       thermometer_hygrometer_hallway_floor_1:
         friendly_name: "Våning 1"
@@ -257,13 +264,6 @@ sensor:
         value_template: "{{ states.sensor.vind_temperature.state }}°C / {{ states.sensor.vind_humidity.state }}%"
         icon_template: mdi:thermometer
         
-  
-  - platform: statistics
-    entity_id: sensor.frys_temperature
-    name: Freezer Temp
-    sampling_size: 400
-    max_age:
-      minutes: 60
   
   - platform: modbus
     registers:
@@ -298,14 +298,32 @@ sensor:
         slave: 1
         register: 601
 
-binary_sensor:
-  - platform: template
-    sensors:
-      freezer_open:
-        friendly_name: "Frys öppen"
-        value_template: >
-          {{ (states.sensor.frys_temperature.state|float) + 1 < (states.sensor.freezer_temp_mean.state)|float }}
-
+switch:
+  platform: rfxtrx
+  devices:
+    0b11000c000e8e5001000080:
+      name: baksida
+    0b110019000e8e5201000070:
+      name: entre
+    0b11002c000e8e5101000080:
+      name: balkong
+    0b110004000e8e5501000070:
+       name: van3_fonster1
+    0b110005000e8e5601000070:
+       name: van3_fonster2
+    0b110089000e8e4e01000080:
+      name: tvattstuga
+    0b11009600ceb54e02010f80:
+      name: garderob
+    0b1100a500ceb53a01010f70:
+      name: pertelefon
+    0b1100c0016fc80a0e010f80:
+      name: radio1switch
+    0b11008a0117f79e02010f80:
+      name: ringklocka
+    0b110006012c34740a000070:
+      name: sovrumsfonster
+ 
 verisure:
   username: !secret verisure_username
   password: !secret verisure_password
@@ -498,7 +516,7 @@ automation:
       offset: '-00:20:00'
     action:
       service: homeassistant.turn_on
-      entity_id: light.sovrumsfonster
+      entity_id: switch.sovrumsfonster
   
   - alias: Turn off window lights in bedroom at sunset
     trigger:
@@ -506,7 +524,7 @@ automation:
       at: '23:20:00'
     action:
       service: homeassistant.turn_off
-      entity_id: light.sovrumsfonster
+      entity_id: switch.sovrumsfonster
   
   - alias: Turn off lighs when alarm armed
     trigger:
