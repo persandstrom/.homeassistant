@@ -69,7 +69,6 @@ group:
     icon: mdi:thermometer
     entities:
       - group.climate
-      - binary_sensor.freezer_open
   multimedia_view:
     name: Multimedia
     view: yes
@@ -105,12 +104,11 @@ group:
     entities:
       - switch.tvattstuga
       - switch.garderob
-      - switch.hallampa
+      - switch.cluster
   switches:
     name: Brytare
     view: no
     entities:
-      - switch.elintelefon
       - switch.pertelefon
       - switch.radio1switch
   radio_1:
@@ -134,7 +132,6 @@ group:
       - sensor.thermometer_hygrometer_floor_3
       - sensor.thermometer_hygrometer_outdoor
       - sensor.thermometer_hygrometer_attic
-      - sensor.thermometer_hygrometer_freezer
   ventilation:
     name: Ventilation
     view: no
@@ -144,7 +141,6 @@ group:
       - sensor.temperature_set
       - input_number.temperature_set
       - sensor.filter_age
-      - sensor.replace_in
       - sensor.supply_air
       - sensor.extract_air
       - sensor.exhaust_air
@@ -158,6 +154,7 @@ group:
 
 rfxtrx:
   device: /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A129KL64-if00-port0
+  debug: True
 
 cover:
   - platform: rfxtrx
@@ -172,10 +169,11 @@ logger:
   default: info
   logs:
     urllib3.connectionpool: critical
+    homeassistant.components.rfxtrx: debug
 
 http:
   api_password: !secret ha_api_password
-  ssl_certificate: /home/homeassistant/cert/server-all.crt
+  ssl_certificate: /home/homeassistant/cert/server.crt
   ssl_key: /home/homeassistant/cert/server.key
   # Set to 1 to enable development mode
   # development: 1
@@ -194,18 +192,17 @@ notify:
 #tellstick:
 #  signal_repetitions: 3
 
-device_tracker:
-  platform: asuswrt
+asuswrt:
   host: 192.168.1.1
   username: !secret asuswrt_username
   password: !secret asuswrt_password
-  track_new_devices: no
   protocol: telnet
+  port: 23
 
 modbus:
   type: serial
   method: rtu
-  port: /dev/ttyUSB0
+  port: /dev/ttyUSB1
   baudrate: 9600
   stopbits: 1
   bytesize: 8
@@ -213,7 +210,7 @@ modbus:
 
 sensor:
   - platform: rfxtrx
-#   automatic_add: true
+    automatic_add: True
     devices:
       0a5201023501009d330060:
         name: Vind
@@ -222,6 +219,11 @@ sensor:
           - Humidity
       0a520106720200d81e0279:
         name: Våning 3
+        data_type:
+          - Temperature
+          - Humidity
+      0a5201047a0400c4410079:
+        name: Ute
         data_type:
           - Temperature
           - Humidity
@@ -319,6 +321,8 @@ switch:
       name: pertelefon
     0b1100c0016fc80a0e010f80:
       name: radio1switch
+    0b11001700ed623e02010f80:
+      name: cluster
     0b11008a0117f79e02010f80:
       name: ringklocka
     0b110006012c34740a000070:
@@ -353,6 +357,54 @@ media_player:
     host: 192.168.1.166
 
 automation:
+  - alias: Turn up ventilation in the morning
+    trigger:
+      platform: time
+      at: '08:00:00'
+    action:
+      service: modbus.write_register
+      data:
+        unit: 1
+        address: 100
+        value: 2
+
+  - alias: Turn down ventilation in the evening
+    trigger:
+      platform: time
+      at: '20:00:00'
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: alarm_control_panel.transistorgatan_alarm
+          state: 'armed_home'
+        - condition: state
+          entity_id: alarm_control_panel.transistorgatan_alarm
+          state: 'disarmed'
+    action:
+      service: modbus.write_register
+      data:
+        unit: 1
+        address: 100
+        value: 1
+
+  - alias: Turn down ventilation wehn alarm disarmed during night
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.transistorgatan_alarm
+        from: 'armed_away'
+        to: 'disarmed'
+    condition:
+      - condition: time
+        after: '20:00:00'
+        before: '06:00:00'
+    action:
+      service: modbus.write_register
+      data:
+        unit: 1
+        address: 100
+        value: 1
+
   - alias: radio_1 remote on
     trigger:
       - platform: state
@@ -579,25 +631,6 @@ automation:
       - entity_id: switch.tvattstuga
         service: homeassistant.turn_on
   
-  - alias: Start elins phone charger in the morning
-    trigger:
-      - platform: time
-        at: '04:00:00'
-    action:
-      - entity_id: switch.elintelefon
-        service: homeassistant.turn_on
-  
-  - alias: Trun off elins phone charger after two hours
-    trigger:
-      - platform: state
-        entity_id: switch.elintelefon
-        to: 'on'
-        for:
-          minutes: 120
-    action:
-      - entity_id: switch.elintelefon
-        service: homeassistant.turn_off
-
   - alias: Start pers phone charger in the morning
     trigger:
       - platform: time
