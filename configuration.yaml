@@ -104,7 +104,9 @@ group:
     entities:
       - switch.tvattstuga
       - switch.garderob
-      - switch.cluster
+      - switch.wally
+      - light.cluster
+      - light.stella
   switches:
     name: Brytare
     view: no
@@ -321,12 +323,20 @@ switch:
       name: pertelefon
     0b1100c0016fc80a0e010f80:
       name: radio1switch
-    0b11001700ed623e02010f80:
-      name: cluster
     0b11008a0117f79e02010f80:
       name: ringklocka
     0b110006012c34740a000070:
       name: sovrumsfonster
+    0b11001700ed623e04010f80:
+      name: wally
+
+light:
+  platform: rfxtrx
+  devices:
+    0b11001700ed623e02010f80:
+      name: cluster
+    0b11001700ed623e03010f80:
+      name: stella
  
 verisure:
   username: !secret verisure_username
