@@ -36,6 +36,7 @@ group:
     view: yes
     icon: mdi:lightbulb
     entities:
+      - group.cozy_lights
       - group.window_lights
       - group.outdoor_lights
       - group.indoor_lights
@@ -104,9 +105,14 @@ group:
     entities:
       - switch.tvattstuga
       - switch.garderob
+  cozy_lights:
+    name: Mysbelysning
+    view: no
+    entities:
       - switch.wally
       - light.cluster
       - light.stella
+      - light.soffa
   switches:
     name: Brytare
     view: no
@@ -194,12 +200,12 @@ notify:
 #tellstick:
 #  signal_repetitions: 3
 
-asuswrt:
-  host: 192.168.1.1
-  username: !secret asuswrt_username
-  password: !secret asuswrt_password
-  protocol: telnet
-  port: 23
+#asuswrt:
+#  host: 192.168.1.1
+#  username: !secret asuswrt_username
+#  password: !secret asuswrt_password
+#  protocol: telnet
+#  port: 23
 
 modbus:
   type: serial
@@ -337,6 +343,8 @@ light:
       name: cluster
     0b11001700ed623e03010f80:
       name: stella
+    0b11001700ed623e05010f80:
+      name: soffa
  
 verisure:
   username: !secret verisure_username
@@ -570,6 +578,8 @@ automation:
         service: homeassistant.turn_off
       - entity_id: group.indoor_lights
         service: homeassistant.turn_off
+      - entity_id: group.cozy_lights
+        service: homeassistant.turn_off
   
   - alias: Turn on window lights in bedroom at sunset
     trigger:
@@ -594,9 +604,9 @@ automation:
         entity_id: alarm_control_panel.transistorgatan_alarm
         to: 'armed_away'
     action:
-      - entity_id: switch.tvattstuga
+      - entity_id: group.indoor_lights
         service: homeassistant.turn_off
-      - entity_id: swtich.garderob
+      - entity_id: group.cozy_lights
         service: homeassistant.turn_off
 
   - alias: Turn off wardrobe light after X minutes
