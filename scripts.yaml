@@ -1,0 +1,65 @@
+start_radio_1:                                                                 
+  alias: Start Radio 1                                                         
+  sequence:                                                                    
+    - alias: Power on                                                          
+      service: media_player.turn_on                                            
+      data:                                                                    
+        entity_id: media_player.radio_1                                        
+    - alias: Set volume                                                        
+      service: media_player.volume_set                                         
+      data:                                                                    
+        entity_id: media_player.radio_1                                        
+      data_template:                                                           
+        volume_level: '{{ float(states.input_number.radio_1_volume.state) / 100 }}'
+    - alias: Play                                                              
+      service: media_player.play_media                                         
+      data_template:                                                           
+        entity_id: media_player.radio_1                                        
+        media_content_type: music                                          
+        media_content_id: >                                                    
+          {% if is_state('input_select.radio_1_kanal', 'Radio Paradise') %}    
+          http://stream-uk1.radioparadise.com/rp_192.ogg                     
+          {% elif is_state('input_select.radio_1_kanal', 'P1') %}              
+            http://sverigesradio.se/topsy/direkt/132-hi-mp3                    
+          {% elif is_state('input_select.radio_1_kanal', 'P3') %}              
+            http://sverigesradio.se/topsy/direkt/164-hi-mp3                    
+          {% elif is_state('input_select.radio_1_kanal', 'P4') %}              
+            http://sverigesradio.se/topsy/direkt/212-hi-mp3                    
+          {% elif is_state('input_select.radio_1_kanal', 'Radioapan') %}       
+            http://sverigesradio.se/topsy/direkt/2755-hi-mp3                   
+          {% elif is_state('input_select.radio_1_kanal', 'P4 Bjällerklang') %} 
+            http://sverigesradio.se/topsy/direkt/3034-hi-mp3                   
+          {% endif %}
+            start_radio_3:
+  
+  alias: Start Vaning 3
+  sequence:
+    - alias: Power on
+      service: media_player.turn_on
+      data:
+        entity_id: media_player.vaning_3
+    - alias: Set volume
+      service: media_player.volume_set
+      data:
+        entity_id: media_player.vaning_3
+      data_template:
+        volume_level: '{{ float(states.input_number.radio_3_volume.state) / 100 }}'
+    - alias: Play
+      service: media_player.play_media
+      data_template:
+        entity_id: media_player.vaning_3
+        media_content_type: music
+        media_content_id: >
+          {% if is_state('input_select.vaning_3_kanal', 'Radio Paradise') %}
+            http://stream-uk1.radioparadise.com/rp_192.ogg
+          {% elif is_state('input_select.vaning_3_kanal', 'P1') %}
+            http://sverigesradio.se/topsy/direkt/132-hi-mp3
+          {% elif is_state('input_select.vaning_3_kanal', 'P3') %}
+            http://sverigesradio.se/topsy/direkt/164-hi-mp3
+          {% elif is_state('input_select.vaning_3_kanal', 'P4') %}
+            http://sverigesradio.se/topsy/direkt/212-hi-mp3
+          {% elif is_state('input_select.vaning_3_kanal', 'Radioapan') %}
+            http://sverigesradio.se/topsy/direkt/2755-hi-mp3
+          {% elif is_state('input_select.vaning_3_kanal', 'P4 Bjällerklang') %}
+            http://sverigesradio.se/topsy/direkt/3034-hi-mp3
+          {% endif %}

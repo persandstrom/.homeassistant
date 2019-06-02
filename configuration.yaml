@@ -2,12 +2,17 @@ homeassistant:
   # Name of the location where Home Assistant is running
   name: Home
   # Location required to calculate the time the sun rises and sets
-  latitude: 57.43
-  longitude: 11.59
+  latitude: 57.7066
+  longitude: 11.9672
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 0
+  # metric for Metric, imperial for Imperial
   unit_system: metric
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   time_zone: Europe/Stockholm
-  
+  # Customization file
+  customize: !include customize.yaml
+
   customize:
     group.all_automations:
       hidden: false
@@ -20,261 +25,57 @@ homeassistant:
     group.all_lights:
       hidden: false
 
-group:
-  default_view:
-    name: Start
-    view: yes
-    icon: mdi:home
-    entities:
-      - alarm_control_panel.transistorgatan_alarm
-      - device_tracker.androidd539a09108a17440
-      - device_tracker.elinsiphone
-      - group.radio_1
-      - group.radio_2
-  switch_view:
-    name: Belysning och brytare
-    view: yes
-    icon: mdi:lightbulb
-    entities:
-      - group.cozy_lights
-      - group.window_lights
-      - group.outdoor_lights
-      - group.indoor_lights
-      - group.switches
-  surveillance_view:
-    name: Övervakning
-    view: yes
-    icon: mdi:eye
-    entities:
-      - alarm_control_panel.transistorgatan_alarm
-      - device_tracker.androidd539a09108a17440
-      - device_tracker.elinsiphone
-      - group.doors
-      - camera.mjpeg_camera
-  ventilation_view:
-    name: Ventilation
-    view: yes
-    icon: mdi:fan
-    entities:
-      - group.ventilation
-  cover_view:
-    name: Markiser
-    view: yes
-    icon: mdi:weather-sunset
-    entities:
-      - cover.sovrum
-      - cover.terrass
-  sensors_view:
-    name: Sensorer
-    view: yes
-    icon: mdi:thermometer
-    entities:
-      - group.climate
-  multimedia_view:
-    name: Multimedia
-    view: yes
-    icon: mdi:music
-    entities:
-      - media_player.radio_1
-      - media_player.tv_1
-      - media_player.radio_3
-      - media_player.tv_3
-  automation_view:
-    name: Automation
-    view: yes
-    icon: mdi:home-automation
-    entities:
-      - group.all_automations
-  outdoor_lights:
-    name: Utebelysning
-    view: no
-    entities:
-      - switch.Baksida
-      - switch.Entre
-      - switch.Balkong
-  window_lights:
-    name: Fönsterbelysning
-    view: no
-    entities:
-      - switch.sovrumsfonster
-      - switch.van3_fonster1
-      - switch.van3_fonster2
-  indoor_lights:
-    name: Inomhusbelysning
-    view: no
-    entities:
-      - switch.tvattstuga
-      - switch.garderob
-  cozy_lights:
-    name: Mysbelysning
-    view: no
-    entities:
-      - switch.wally
-      - light.cluster
-      - light.stella
-      - light.soffa
-  switches:
-    name: Brytare
-    view: no
-    entities:
-      - switch.pertelefon
-      - switch.radio1switch
-  radio_1:
-    name: Radio vån 1
-    view: no
-    entities:
-      - input_select.radio_1_kanal
-      - input_number.radio_1_volume
-  radio_2:
-    name: Radio vån 3
-    view: no
-    entities:
-      - input_select.radio_3_kanal
-      - input_number.radio_3_volume
-  climate:
-    name: Klimat
-    view: no
-    entities:
-      - sensor.thermometer_hygrometer_hallway_floor_1
-      - sensor.thermometer_hygrometer_hallway_floor_2
-      - sensor.thermometer_hygrometer_floor_3
-      - sensor.thermometer_hygrometer_outdoor
-      - sensor.thermometer_hygrometer_attic
-  ventilation:
-    name: Ventilation
-    view: no
-    entities:
-      - sensor.fan_speed
-      - input_number.fan_speed
-      - sensor.temperature_set
-      - input_number.temperature_set
-      - sensor.filter_age
-      - sensor.supply_air
-      - sensor.extract_air
-      - sensor.exhaust_air
-  doors:
-    name: Dörrar
-    view: no
-    entities:
-      - binary_sensor.entredorr
-      - binary_sensor.altandorr
-      - binary_sensor.balkongdorr
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
 
-rfxtrx:
-  device: /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A129KL64-if00-port0
-  debug: True
+    #tts:
+    #- platform: google_translate
 
-cover:
-  - platform: rfxtrx
-    signal_repetitions: 2
-    devices:
-      071a03000a0b0c01:
-        name: Sovrum
-      071a03000a0b0d01:
-        name: Terrass
+# Show the introduction message on startup.
+#introduction:
 
-logger:
-  default: info
-  logs:
-    urllib3.connectionpool: critical
-    homeassistant.components.rfxtrx: debug
+discovery:
 
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 http:
-  api_password: !secret ha_api_password
-  ssl_certificate: /home/homeassistant/cert/server.crt
-  ssl_key: /home/homeassistant/cert/server.key
-  # Set to 1 to enable development mode
-  # development: 1
+   api_password: !secret ha_api_password
+   trusted_networks:
+     - 172.21.0.1
+#  ssl_certificate: /cert/server.crt
+#  ssl_key: /cert/server.key
 
-telegram_bot:
-  - platform: polling
-    api_key: !secret telegram_api_key
-    allowed_chat_ids:
-      - !secret telegram_chat_id
+# Sensors
+sensor:
+  # Weather prediction
+  - platform: yr
 
-notify:
-  - name: home_telegram
-    platform: telegram
-    chat_id: !secret telegram_chat_id 
-
-#tellstick:
-#  signal_repetitions: 3
-
-#asuswrt:
-#  host: 192.168.1.1
-#  username: !secret asuswrt_username
-#  password: !secret asuswrt_password
-#  protocol: telnet
-#  port: 23
+# Text to speech
+tts:
+  - platform: google_translate
+    service_name: google_say
+    language: 'sv'
 
 modbus:
   type: serial
   method: rtu
-  port: /dev/ttyUSB1
+  port: /dev/ttyUSB0
   baudrate: 9600
   stopbits: 1
   bytesize: 8
   parity: N
 
-sensor:
-  - platform: rfxtrx
-    automatic_add: True
-    devices:
-      0a5201023501009d330060:
-        name: Vind
-        data_type:
-          - Temperature
-          - Humidity
-      0a520106720200d81e0279:
-        name: Våning 3
-        data_type:
-          - Temperature
-          - Humidity
-      0a5201047a0400c4410079:
-        name: Ute
-        data_type:
-          - Temperature
-          - Humidity
+rfxtrx:                                                                          
+  device: /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A129KL64-if00-port0             
+  debug: False
 
-  - platform: template
-    sensors:
-      thermometer_hygrometer_floor_3:
-        friendly_name: "Våning 3"
-        entity_id:
-          - sensor.vaning_3_temperature
-          - sensor.vaning_3_humidity
-        value_template: "{{ states.sensor.vaning_3_temperature.state }}°C / {{ states.sensor.vaning_3_humidity.state }}%"
-        icon_template: mdi:thermometer 
-      thermometer_hygrometer_hallway_floor_1:
-        friendly_name: "Våning 1"
-        entity_id:
-          - sensor.hall_nere_temperature
-          - sensor.hall_nere_humidity
-        value_template: "{{ states.sensor.hall_nere_temperature.state }}°C / {{ states.sensor.hall_nere_humidity.state }}%"
-        icon_template: mdi:thermometer 
-      thermometer_hygrometer_hallway_floor_2:
-        friendly_name: "Våning 2"
-        entity_id:
-          - sensor.hall_uppe_temperature
-          - sensor.hall_uppe_humidity
-        value_template: "{{ states.sensor.hall_uppe_temperature.state }}°C / {{ states.sensor.hall_uppe_humidity.state }}%"
-        icon_template: mdi:thermometer
-      thermometer_hygrometer_outdoor:
-        friendly_name: "Ute"
-        entity_id:
-          - sensor.ute_temperature
-          - sensor.ute_humidity
-        value_template: "{{ states.sensor.ute_temperature.state }}°C / {{ states.sensor.ute_humidity.state }}%"
-        icon_template: mdi:thermometer
-      thermometer_hygrometer_attic:
-        friendly_name: "Vind"
-        entity_id:
-          - sensor.vind_temperature
-          - sensor.vind_humidity
-        value_template: "{{ states.sensor.vind_temperature.state }}°C / {{ states.sensor.vind_humidity.state }}%"
-        icon_template: mdi:thermometer
-        
-  
+asuswrt:
+  host: 192.168.1.1
+  username: !secret asuswrt_username
+  password: !secret asuswrt_password
+  protocol: telnet
+  port: 23
+
+sensor:
   - platform: modbus
     registers:
       - name: Fan Speed
@@ -308,493 +109,140 @@ sensor:
         slave: 1
         register: 601
 
-switch:
-  platform: rfxtrx
-  devices:
-    0b11000c000e8e5001000080:
-      name: baksida
-    0b110019000e8e5201000070:
-      name: entre
-    0b11002c000e8e5101000080:
-      name: balkong
-    0b110004000e8e5501000070:
-       name: van3_fonster1
-    0b110005000e8e5601000070:
-       name: van3_fonster2
-    0b110089000e8e4e01000080:
-      name: tvattstuga
-    0b11009600ceb54e02010f80:
-      name: garderob
-    0b1100a500ceb53a01010f70:
-      name: pertelefon
-    0b1100c0016fc80a0e010f80:
-      name: radio1switch
-    0b11008a0117f79e02010f80:
-      name: ringklocka
-    0b110006012c34740a000070:
-      name: sovrumsfonster
-    0b11001700ed623e04010f80:
-      name: wally
+  - platform: rfxtrx                                                             
+    automatic_add: True                                                          
+    devices:                                                                     
+      0a5201023501009d330060:                                                    
+        name: Vind                                                               
+        data_type:                                                               
+          - Temperature                                                          
+          - Humidity                                                             
+      0a520106720200d81e0279:                                                    
+        name: Våning 3                                                           
+        data_type:                                                               
+          - Temperature                                                          
+          - Humidity                                                             
+      0a5201047a0400c4410079:                                                    
+        name: Ute                                                                
+        data_type:                                                               
+          - Temperature                                                          
+          - Humidity
 
-light:
-  platform: rfxtrx
-  devices:
-    0b11001700ed623e02010f80:
-      name: cluster
-    0b11001700ed623e03010f80:
-      name: stella
-    0b11001700ed623e05010f80:
-      name: soffa
- 
-verisure:
-  username: !secret verisure_username
-  password: !secret verisure_password
-  thermometers: 1
-  hygrometers: 1
-  smartplugs: 1
+  - platform: template                                                           
+    sensors:                                                                     
+      thermometer_hygrometer_floor_3:                                            
+        friendly_name: "Våning 3"                                                
+        entity_id:                                                               
+          - sensor.vaning_3_temperature                                          
+          - sensor.vaning_3_humidity                                             
+        value_template: "{{ states.sensor.vaning_3_temperature.state }}°C / {{ states.sensor.vaning_3_humidity.state }}%"
+        icon_template: mdi:thermometer                                           
+      thermometer_hygrometer_hallway_floor_1:                                    
+        friendly_name: "Våning 1"                                                
+        entity_id:                                                               
+          - sensor.hall_nere_temperature                                         
+          - sensor.hall_nere_humidity                                            
+        value_template: "{{ states.sensor.hall_nere_temperature.state }}°C / {{ states.sensor.hall_nere_humidity.state }}%"
+        icon_template: mdi:thermometer                                           
+      thermometer_hygrometer_hallway_floor_2:                                    
+        friendly_name: "Våning 2"                                                
+        entity_id:                                                               
+          - sensor.hall_uppe_temperature                                         
+          - sensor.hall_uppe_humidity                                            
+        value_template: "{{ states.sensor.hall_uppe_temperature.state }}°C / {{ states.sensor.hall_uppe_humidity.state }}%"
+        icon_template: mdi:thermometer                                           
+      thermometer_hygrometer_outdoor:                                            
+        friendly_name: "Ute"                                                     
+        entity_id:                                                               
+          - sensor.ute_temperature                                               
+          - sensor.ute_humidity                                                  
+        value_template: "{{ states.sensor.ute_temperature.state }}°C / {{ states.sensor.ute_humidity.state }}%"
+        icon_template: mdi:thermometer                                           
+      thermometer_hygrometer_attic:                                              
+        friendly_name: "Vind"                                                    
+        entity_id:                                                               
+          - sensor.vind_temperature                                              
+          - sensor.vind_humidity                                                 
+        value_template: "{{ states.sensor.vind_temperature.state }}°C / {{ states.sensor.vind_humidity.state }}%"
+        icon_template: mdi:thermometer   
+
+switch:                                                                          
+  platform: rfxtrx                                                               
+  devices:                                                                       
+    0b11000c000e8e5001000080:                                                    
+      name: baksida                                                              
+    0b110019000e8e5201000070:                                                    
+      name: entre                                                                
+    0b11002c000e8e5101000080:                                                    
+      name: balkong                                                              
+    0b110004000e8e5501000070:                                                    
+       name: van3_fonster1                                                       
+    0b110005000e8e5601000070:                                                    
+       name: van3_fonster2                                                       
+    0b110089000e8e4e01000080:                                                    
+      name: tvattstuga                                                           
+    0b11009600ceb54e02010f80:                                                    
+      name: garderob                                                             
+    0b1100a500ceb53a01010f70:                                                    
+      name: pertelefon                                                           
+    0b1100c0016fc80a0e010f80:                                                    
+      name: radio1switch                                                         
+    0b11008a0117f79e02010f80:                                                    
+      name: ringklocka                                                           
+    0b110006012c34740a000070:                                                    
+      name: sovrumsfonster                                                       
+    0b11001700ed623e04010f80:                                                    
+      name: wally                                                                
+                                                                                 
+light:                                                                           
+  platform: rfxtrx                                                               
+  devices:                                                                       
+    0b11001700ed623e02010f80:                                                    
+      name: cluster                                                              
+    0b11001700ed623e03010f80:                                                    
+      name: stella                                                               
+    0b11001700ed623e12010f80:                                                    
+      name: soffa    
+
+cover:                                                                           
+  - platform: rfxtrx                                                             
+    signal_repetitions: 2                                                        
+    devices:                                                                     
+      071a03000a0b0c01:                                                          
+        name: Sovrum                                                             
+      071a03000a0b0d01:                                                          
+        name: Terrass    
+
+verisure:                                                                        
+  username: !secret verisure_username                                            
+  password: !secret verisure_password                                            
+  thermometers: 1                                                                
+  hygrometers: 1                                                                 
+  smartplugs: 1                                                                  
   alarm: 1
 
-frontend:
-
-conversation:
-
-history:
-
-logbook:
-
-sun:
-
-media_player:
-  - platform: cast
-    host: 192.168.1.206
-  - platform: cast
-    host: 192.168.1.174
-  - platform: cast
-    host: 192.168.1.97
-  - platform: cast
-    host: 192.168.1.166
-
-automation:
-  - alias: Turn up ventilation in the morning
-    trigger:
-      platform: time
-      at: '08:00:00'
-    action:
-      service: modbus.write_register
-      data:
-        unit: 1
-        address: 100
-        value: 2
-
-  - alias: Turn down ventilation in the evening
-    trigger:
-      platform: time
-      at: '20:00:00'
-    condition:
-      condition: or
-      conditions:
-        - condition: state
-          entity_id: alarm_control_panel.transistorgatan_alarm
-          state: 'armed_home'
-        - condition: state
-          entity_id: alarm_control_panel.transistorgatan_alarm
-          state: 'disarmed'
-    action:
-      service: modbus.write_register
-      data:
-        unit: 1
-        address: 100
-        value: 1
-
-  - alias: Turn down ventilation wehn alarm disarmed during night
-    trigger:
-      - platform: state
-        entity_id: alarm_control_panel.transistorgatan_alarm
-        from: 'armed_away'
-        to: 'disarmed'
-    condition:
-      - condition: time
-        after: '20:00:00'
-        before: '06:00:00'
-    action:
-      service: modbus.write_register
-      data:
-        unit: 1
-        address: 100
-        value: 1
-
-  - alias: radio_1 remote on
-    trigger:
-      - platform: state
-        entity_id: switch.remotepower
-    condition:
-      condition: state
-      entity_id: switch.remotepower
-      state: 'on'
-    action:
-      entity_id: input_select.radio_1_kanal
-      service: input_select.select_option
-      data:
-        option: "Radio Paradise"
-  
-  - alias: radio_1 remote off
-    trigger:
-      - platform: state
-        entity_id: switch.remotepower
-    condition:
-      condition: state
-      entity_id: switch.remotepower
-      state: 'off'
-    action:
-      entity_id: input_select.radio_1_kanal
-      service: input_select.select_option
-      data:
-        option: "Av"
-  
-  - alias: radio_1 remote swich station next
-    trigger:
-      - platform: state
-        entity_id: switch.remotechannel
-    condition:
-      condition: state
-      entity_id: switch.remotechannel
-      state: 'off'
-    action:
-      entity_id: input_select.radio_1_kanal
-      service: input_select.select_next
-  
-  - alias: radio_1 remote switch station previous
-    trigger:
-      - platform: state
-        entity_id: switch.remotechannel
-    condition:
-      condition: state
-      entity_id: switch.remotechannel
-      state: 'on'
-    action:
-      entity_id: input_select.radio_1_kanal
-      service: input_select.select_previous
-  
-  - alias: radio_1 remote volume up
-    trigger:
-      - platform: state
-        entity_id: switch.remotevolume
-    condition:
-      condition: state
-      entity_id: switch.remotevolume
-      state: 'off'
-    action:
-      service: input_number.set_value
-      entity_id: input_number.radio_1_volume
-      data_template:
-        value: '{{ float(states.input_number.radio_1_volume.state) + 10 }}'
-  
-  - alias: radio_1 remote volume down
-    trigger:
-      - platform: state
-        entity_id: switch.remotevolume
-    condition:
-      condition: state
-      entity_id: switch.remotevolume
-      state: 'on'
-    action:
-      service: input_number.set_value
-      entity_id: input_number.radio_1_volume
-      data_template:
-        value: '{{ float(states.input_number.radio_1_volume.state) - 10 }}'
-
-  - alias: Change radio 1 volume
-    trigger:
-      - platform: state
-        entity_id: input_number.radio_1_volume
-    action:
-      service: media_player.volume_set
-      entity_id: media_player.radio_1
-      data_template:
-        volume_level: '{{ float(states.input_number.radio_1_volume.state) / 100 }}'
-  
-  - alias: Change radio 3 volume
-    trigger:
-      - platform: state
-        entity_id: input_number.radio_3_volume
-    action:
-      service: media_player.volume_set
-      entity_id: media_player.radio_3
-      data_template:
-        volume_level: '{{ float(states.input_number.radio_3_volume.state) / 100 }}'
-
-#  - alias: Roof window open warning
-#    trigger:
-#      platform: time
-#      minutes: 15
-#      seconds: 0
-#      after: '21:00:00'
-#    condition: or
-#    conditions:
-#      - condition: state
-#        entity_id: switch.Takfonster1
-#        state: 'on'
-#      - condition: state
-#        entity_id: switch.Takfonster2
-#        state: 'on'
-#    action:
-#      service: notify.home_telegram
-#      data:
-#        message: Roof window open
-
-  - alias: Turn on lights outside at sunset
-    trigger:
-      platform: sun
-      event: sunset
-    action:
-      service: homeassistant.turn_on
-      entity_id: group.outdoor_lights
-
-  - alias: Turn off window and outdoor lights at sunrise
-    trigger:
-      platform: sun
-      event: sunrise
-    action:
-      - service: homeassistant.turn_off
-        entity_id: group.outdoor_lights
-      - service: homeassistant.turn_off
-        entity_id: group.window_lights
-
-  - alias: Turn on window lights floor three at sunset
-    trigger:
-      platform: sun
-      event: sunset
-      offset: '-00:15:00'
-    action:
-      service: homeassistant.turn_on
-      entity_id: group.window_lights
-  
-  - alias: Turn off light in the evening
-    trigger:
-      platform: time
-      at: '23:00:00'
-    action:
-      - entity_id: group.window_lights
-        service: homeassistant.turn_off
-      - entity_id: group.indoor_lights
-        service: homeassistant.turn_off
-      - entity_id: group.cozy_lights
-        service: homeassistant.turn_off
-  
-  - alias: Turn on window lights in bedroom at sunset
-    trigger:
-      platform: sun
-      event: sunset
-      offset: '-00:20:00'
-    action:
-      service: homeassistant.turn_on
-      entity_id: switch.sovrumsfonster
-  
-  - alias: Turn off window lights in bedroom at sunset
-    trigger:
-      platform: time
-      at: '23:20:00'
-    action:
-      service: homeassistant.turn_off
-      entity_id: switch.sovrumsfonster
-  
-  - alias: Turn off lighs when alarm armed
-    trigger:
-      - platform: state
-        entity_id: alarm_control_panel.transistorgatan_alarm
-        to: 'armed_away'
-    action:
-      - entity_id: group.indoor_lights
-        service: homeassistant.turn_off
-      - entity_id: group.cozy_lights
-        service: homeassistant.turn_off
-
-  - alias: Turn off wardrobe light after X minutes
-    trigger:
-      - platform: state
-        entity_id: switch.garderob
-        to: 'on'
-        for:
-          minutes: 5
-    action:
-      - entity_id: switch.garderob
-        service: homeassistant.turn_off
-
-  - alias: Turn on laundry lights in the morning
-    trigger:
-      - platform: time
-        at: '06:00:00'
-    condition:
-      condition: or
-      conditions:
-        - condition: state
-          entity_id: alarm_control_panel.transistorgatan_alarm
-          state: 'armed_home'
-        - condition: state
-          entity_id: alarm_control_panel.transistorgatan_alarm
-          state: 'disarmed'
-    action:
-      - entity_id: switch.tvattstuga
-        service: homeassistant.turn_on
-  
-  - alias: Turn on laundry light when alarm disarmed
-    trigger:
-      - platform: state
-        entity_id: alarm_control_panel.transistorgatan_alarm
-        from: 'armed_away'
-        to: 'disarmed'
-    condition:
-      - condition: time
-        after: '06:00:00'
-        before: '22:59:00'
-    action:
-      - entity_id: switch.tvattstuga
-        service: homeassistant.turn_on
-  
-  - alias: Start pers phone charger in the morning
-    trigger:
-      - platform: time
-        at: '05:00:00'
-    action:
-      - entity_id: switch.pertelefon
-        service: homeassistant.turn_on
-
-  - alias: Trun off pers phone charger after one hour
-    trigger:
-      - platform: state
-        entity_id: switch.pertelefon
-        to: 'on'
-        for:
-          minutes: 60
-    action:
-      - entity_id: switch.pertelefon
-        service: homeassistant.turn_off
-
-  - alias: Turn off radio
-    trigger:
-      - platform: state
-        entity_id: alarm_control_panel.transistorgatan_alarm
-        to: 'armed_away'
-      - platform: state
-        entity_id: input_select.radio_1_kanal
-        to: Av
-    action:
-      - service: media_player.media_pause
-        entity_id: media_player.radio_1
-      - service: homeassistant.turn_off
-        entity_id: switch.radio1switch
-
-  - alias: Notify alarm state
-    trigger:
-      - platform: state 
-        entity_id: alarm_control_panel.transistorgatan_alarm
-    action:
-      service: notify.home_telegram
-      data:
-        title: alarm
-      data_template:
-        message: >
-          {{ '*' ~ trigger.to_state.state ~ '*'|replace('_', ' ') }}
-          by {{ trigger.to_state.attributes.changed_by }}
-  
-  - alias: Notify door bell
-    trigger:
-      - platform: state
-        entity_id: switch.ringklocka
-    condition:
-      - condition: state
-        entity_id: switch.ringklocka
-        state: 'on'
-    action:
-      service: notify.home_telegram
-      data:
-        title: ringklocka
-        message: ding dong
-  
-  - alias: Start Radio 1
-    trigger:
-      platform: state
-      entity_id: input_select.radio_1_kanal
-    action:
-      - entity_id: switch.radio1switch
-        service: homeassistant.turn_on
-      - entity_id: script.ON
-        service: script.start_radio_1
-  
-  - alias: Start Radio 3
-    trigger:
-      platform: state
-      entity_id: input_select.radio_3_kanal
-    action:
-      - entity_id: script.ON
-        service: script.start_radio_3
-
-  - alias: Set fan speed
-    trigger:
-      platform: state
-      entity_id: input_number.fan_speed
-    action:
-      service: modbus.write_register
-      data:
-        unit: 1
-        address: 100
-      data_template:
-        value: '{{ states.input_number.fan_speed.state|int }}'
-
-  - alias: Set fan speed number value
-    trigger:
-      platform: state
-      entity_id: sensor.fan_speed
-    action:
-      service: input_number.set_value
-      data_template:
-        entity_id: input_number.fan_speed
-        value: '{{ states.sensor.fan_speed.state }}'
-  
-  - alias: Set temperature set
-    trigger:
-      platform: state
-      entity_id: input_number.temperature_set
-    action:
-      service: modbus.write_register
-      data:
-          unit: 1
-          address: 206
-      data_template:
-          value: '{{ states.input_number.temperature_set.state|int }}'
-
-  - alias: Set temperature set number value
-    trigger:
-      platform: state
-      entity_id: sensor.temperature_set
-    action:
-      service: input_number.set_value
-      data_template:
-        entity_id: input_number.temperature_set
-        value: '{{ states.sensor.temperature_set.state }}'
-
-input_select:
-  radio_1_kanal:
-    name: Kanal
-    options:
-      - Av
-      - Radio Paradise
-      - P1
-      - P3
-      - P4
-      - Radioapan
-      - P4 Bjällerklang
-    initial: Av
-  radio_3_kanal:
-    name: Kanal
-    options:
-      - Av
-      - Radio Paradise
-      - P1
-      - P3
-      - P4
-      - Radioapan
-      - P4 Bjällerklang
+input_select:                                                                    
+  radio_1_kanal:                                                                 
+    name: Kanal                                                                  
+    options:                                                                     
+      - Av                                                                       
+      - Radio Paradise                                                           
+      - P1                                                                       
+      - P3                                                                       
+      - P4                                                                       
+      - Radioapan                                                                
+      - P4 Bjällerklang                                                          
+    initial: Av                                                                  
+  vaning_3_kanal:                                                                 
+    name: Kanal                                                                  
+    options:                                                                     
+      - Av                                                                       
+      - Radio Paradise                                                           
+      - P1                                                                       
+      - P3                                                                       
+      - P4                                                                       
+      - Radioapan                                                                
+      - P4 Bjällerklang                                                          
     initial: Av
 
 input_number:
@@ -805,7 +253,7 @@ input_number:
     initial: 35
     step: 1
     unit_of_measurement: '%'
-  radio_3_volume:
+  vaning_3_volume:
     name: Volym
     min: 0
     max: 100
@@ -825,74 +273,18 @@ input_number:
     step: 1
     unit_of_measurement: step
 
-script:
-  start_radio_1:
-    alias: Start Radio 1
-    sequence:
-      - alias: Power on
-        service: media_player.turn_on   
-        data:
-          entity_id: media_player.radio_1     
-      - alias: Set volume  
-        service: media_player.volume_set
-        data:      
-          entity_id: media_player.radio_1
-        data_template:
-          volume_level: '{{ float(states.input_number.radio_1_volume.state) / 100 }}'
-      - alias: Play
-        service: media_player.play_media
-        data_template:
-          entity_id: media_player.radio_1
-          media_content_type: video/mp4
-          media_content_id: >
-            {% if is_state('input_select.radio_1_kanal', 'Radio Paradise') %}
-              http://stream-uk1.radioparadise.com/rp_192.ogg
-            {% elif is_state('input_select.radio_1_kanal', 'P1') %}
-              http://sverigesradio.se/topsy/direkt/132-hi-mp3
-            {% elif is_state('input_select.radio_1_kanal', 'P3') %}
-              http://sverigesradio.se/topsy/direkt/164-hi-mp3
-            {% elif is_state('input_select.radio_1_kanal', 'P4') %}
-              http://sverigesradio.se/topsy/direkt/212-hi-mp3
-            {% elif is_state('input_select.radio_1_kanal', 'Radioapan') %}
-              http://sverigesradio.se/topsy/direkt/2755-hi-mp3
-            {% elif is_state('input_select.radio_1_kanal', 'P4 Bjällerklang') %}
-              http://sverigesradio.se/topsy/direkt/3034-hi-mp3
-            {% endif %}
-  start_radio_3:
-    alias: Start Radio 3
-    sequence:
-      - alias: Power on
-        service: media_player.turn_on   
-        data:
-          entity_id: media_player.radio_3     
-      - alias: Set volume  
-        service: media_player.volume_set
-        data:
-          entity_id: media_player.radio_3
-        data_template:
-          volume_level: '{{ float(states.input_number.radio_3_volume.state) / 100 }}'
-      - alias: Play
-        service: media_player.play_media
-        data_template:
-          entity_id: media_player.radio_3
-          media_content_type: video/mp4
-          media_content_id: >
-            {% if is_state('input_select.radio_3_kanal', 'Radio Paradise') %}
-              http://stream-uk1.radioparadise.com/rp_192.ogg
-            {% elif is_state('input_select.radio_3_kanal', 'P1') %}
-              http://sverigesradio.se/topsy/direkt/132-hi-mp3
-            {% elif is_state('input_select.radio_3_kanal', 'P3') %}
-              http://sverigesradio.se/topsy/direkt/164-hi-mp3
-            {% elif is_state('input_select.radio_3_kanal', 'P4') %}
-              http://sverigesradio.se/topsy/direkt/212-hi-mp3
-            {% elif is_state('input_select.radio_3_kanal', 'Radioapan') %}
-              http://sverigesradio.se/topsy/direkt/2755-hi-mp3
-            {% elif is_state('input_select.radio_3_kanal', 'P4 Bjällerklang') %}
-              http://sverigesradio.se/topsy/direkt/3034-hi-mp3
-            {% endif %}
-
-camera:
-  - platform: mjpeg
-    mjpeg_url: http://192.168.1.57:8080/video
-    username: !secret cam_username
+camera:                                                                          
+  - platform: mjpeg                                                              
+    mjpeg_url: http://192.168.1.57:8080/video                                    
+    username: !secret cam_username                                               
     password: !secret cam_password
+
+telegram_bot:                                                                    
+  - platform: polling                                                            
+    api_key: !secret telegram_api_key                                            
+    allowed_chat_ids:                                                            
+      - !secret telegram_chat_id
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
