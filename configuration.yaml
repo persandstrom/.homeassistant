@@ -167,7 +167,8 @@ sensor:
         icon_template: mdi:thermometer   
 
 switch:                                                                          
-  platform: rfxtrx                                                               
+  platform: rfxtrx
+  automatic_add: false
   devices:                                                                       
     0b11000c000e8e5001000080:                                                    
       name: baksida                                                              
@@ -191,8 +192,14 @@ switch:
       name: ringklocka                                                           
     0b110006012c34740a000070:                                                    
       name: sovrumsfonster                                                       
-    0b11001700ed623e04010f80:                                                    
-      name: wally                                                                
+    0b11001700ed623e04010f80: 
+      name: wally
+    0b11000701e067d20d010f70:
+      name: secto
+    0b11001a01e067d20f010f70:
+      name: glob2
+    0b11001e01e067d20e010f70:
+      name: glob3
                                                                                  
 light:                                                                           
   platform: rfxtrx                                                               
@@ -231,7 +238,6 @@ input_select:
       - P3                                                                       
       - P4                                                                       
       - Radioapan                                                                
-      - P4 Bjällerklang                                                          
     initial: Av                                                                  
   vaning_3_kanal:                                                                 
     name: Kanal                                                                  
@@ -242,7 +248,6 @@ input_select:
       - P3                                                                       
       - P4                                                                       
       - Radioapan                                                                
-      - P4 Bjällerklang                                                          
     initial: Av
 
 input_number:
@@ -284,6 +289,11 @@ telegram_bot:
     api_key: !secret telegram_api_key                                            
     allowed_chat_ids:                                                            
       - !secret telegram_chat_id
+
+vacuum:
+  - platform: xiaomi_miio
+    host: 192.168.1.133
+    token: 
 
 group: !include groups.yaml
 automation: !include automations.yaml

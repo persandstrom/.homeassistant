@@ -250,15 +250,11 @@
       state: 'on'                                                              
   action:                                                                      
     - service: telegram_bot.send_message
-      data:                                                                      
-        title: ringklocka                                                        
+      data:                                                        
+        title: ringklocka
         message: ding dong
     - service: tts.google_say
-      entity_id: media_player.radio_1
-      data:
-        message: "Det ringer på dörren"
-    - service: tts.google_say
-      entity_id: media_player.vaning_3
+      entity_id: media_player.googlehome8863
       data:
         message: "Det ringer på dörren"
                              
@@ -278,7 +274,7 @@
     entity_id: input_select.vaning_3_kanal                                      
   action:                                                                      
     - entity_id: script.ON                                                     
-      service: script.start_vaning_3                                            
+      service: script.start_radio_3                                            
                                                                                
 - alias: Set fan speed                                                         
   trigger:                                                                     

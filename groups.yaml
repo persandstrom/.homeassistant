@@ -51,15 +51,16 @@ multimedia_view:
   name: Multimedia                                                             
   view: yes                                                                    
   icon: mdi:music                                                              
-  entities:                                                                    
+  entities: 
     - media_player.radio_1
     - media_player.ivars_rum
-    - media_player.vaning_3
+    - media_player.selmas_rum
+    - media_player.googlehome8863
     - media_player.tv_1
-    - media_player.tv_3                                                        
+    - media_player.chromecastultra5990                                              
 automation_view:                                                               
-  name: Automation                                                             
-  view: yes                                                                    
+  name: Automation                                         
+  view: yes                                                             
   icon: mdi:home-automation                                                    
   entities:                                                                    
     - group.all_automations                                                    
@@ -91,6 +92,9 @@ cozy_lights:
     - light.cluster                                                            
     - light.stella                                                             
     - light.soffa
+    - switch.secto
+    - switch.glob2
+    - switch.glob3
 switches:                                                                      
   name: Brytare                                                                
   view: no                                                                     
