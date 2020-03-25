@@ -55,15 +55,9 @@ multimedia_view:
     - media_player.radio_1
     - media_player.ivars_rum
     - media_player.selmas_rum
-    - media_player.googlehome8863
     - media_player.tv_1
-    - media_player.chromecastultra5990                                              
-automation_view:                                                               
-  name: Automation                                         
-  view: yes                                                             
-  icon: mdi:home-automation                                                    
-  entities:                                                                    
-    - group.all_automations                                                    
+    - media_player.samsung_ue46f6510
+    - media_player.vaning_3_max
 outdoor_lights:                                                                
   name: Utebelysning                                                           
   view: no                                                                     

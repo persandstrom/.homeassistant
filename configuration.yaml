@@ -13,17 +13,6 @@ homeassistant:
   # Customization file
   customize: !include customize.yaml
 
-  customize:
-    group.all_automations:
-      hidden: false
-    group.all_scripts:
-      hidden: false
-    group.all_devices:
-      hidden: false
-    group.all_switches:
-      hidden: false
-    group.all_lights:
-      hidden: false
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
@@ -37,17 +26,12 @@ default_config:
 discovery:
 
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
-http:
-   api_password: !secret ha_api_password
-   trusted_networks:
-     - 172.21.0.1
+#http:
+        # api_password: !secret ha_api_password
+        #   trusted_networks:
+        #     - 172.21.0.1
 #  ssl_certificate: /cert/server.crt
 #  ssl_key: /cert/server.key
-
-# Sensors
-sensor:
-  # Weather prediction
-  - platform: yr
 
 # Text to speech
 tts:
@@ -76,6 +60,7 @@ asuswrt:
   port: 23
 
 sensor:
+  - platform: yr
   - platform: modbus
     registers:
       - name: Fan Speed
@@ -216,9 +201,9 @@ cover:
     signal_repetitions: 2                                                        
     devices:                                                                     
       071a03000a0b0c01:                                                          
-        name: Sovrum                                                             
+        name: Terrass
       071a03000a0b0d01:                                                          
-        name: Terrass    
+        name: Sovrum
 
 verisure:                                                                        
   username: !secret verisure_username                                            

@@ -1,10 +1,10 @@
 start_radio_1:                                                                 
   alias: Start Radio 1                                                         
   sequence:                                                                    
-    - alias: Power on                                                          
-      service: media_player.turn_on                                            
-      data:                                                                    
-        entity_id: media_player.radio_1                                        
+  #    - alias: Power on
+  #    service: media_player.turn_on                                            
+  #    data:                                                                    
+  #      entity_id: media_player.radio_1                                        
     - alias: Set volume                                                        
       service: media_player.volume_set
       data:                                                                    
@@ -35,17 +35,17 @@ start_radio_3:
     - alias: Power on
       service: media_player.turn_on
       data:
-        entity_id: media_player.googlehome8863
+        entity_id: media_player.vaning_3_max
     - alias: Set volume
       service: media_player.volume_set
       data:
-        entity_id: media_player.googlehome8863
+        entity_id: media_player.vaning_3_max
       data_template:
         volume_level: '{{ float(states.input_number.radio_3_volume.state) / 100 }}'
     - alias: Play
       service: media_player.play_media
       data_template:
-        entity_id: media_player.googlehome8863
+        entity_id: media_player.vaning_3_max
         media_content_type: music
         media_content_id: >
           {% if is_state('input_select.radio_3_kanal', 'Radio Paradise') %}    
