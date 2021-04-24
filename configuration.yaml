@@ -16,7 +16,6 @@ homeassistant:
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
-
     #tts:
     #- platform: google_translate
 
@@ -33,6 +32,7 @@ discovery:
 #  ssl_certificate: /cert/server.crt
 #  ssl_key: /cert/server.key
 
+
 # Text to speech
 tts:
   - platform: google_translate
@@ -42,14 +42,14 @@ tts:
 modbus:
   type: serial
   method: rtu
-  port: /dev/ttyUSB0
+  port: /dev/modbus
   baudrate: 9600
   stopbits: 1
   bytesize: 8
   parity: N
 
 rfxtrx:                                                                          
-  device: /dev/serial/by-id/usb-RFXCOM_RFXtrx433_A129KL64-if00-port0             
+  device: /dev/rfxtrx433e             
   debug: False
 
 asuswrt:
@@ -185,16 +185,27 @@ switch:
       name: glob2
     0b11001e01e067d20e010f70:
       name: glob3
-                                                                                 
-light:                                                                           
-  platform: rfxtrx                                                               
-  devices:                                                                       
-    0b11001700ed623e02010f80:                                                    
-      name: cluster                                                              
-    0b11001700ed623e03010f80:                                                    
-      name: stella                                                               
-    0b11001700ed623e12010f80:                                                    
-      name: soffa    
+
+light:
+  - platform: rfxtrx
+    devices:
+      0b11001700ed623e02010f80:
+        name: cluster
+      0b11001700ed623e03010f80:
+        name: stella
+      0b11001700ed623e12010f80:
+        name: soffa
+  - platform: group
+    name: Mysbelysning
+      - light.stella1
+      - light.stella2
+      - light.stella3
+      - light.cluster
+      - light.wally
+      - light.glob2
+      - light.glob3
+      - light.secto
+      - light.flowerpot
 
 cover:                                                                           
   - platform: rfxtrx                                                             
@@ -263,23 +274,11 @@ input_number:
     step: 1
     unit_of_measurement: step
 
-camera:                                                                          
-  - platform: mjpeg                                                              
-    mjpeg_url: http://192.168.1.57:8080/video                                    
-    username: !secret cam_username                                               
-    password: !secret cam_password
-
 telegram_bot:                                                                    
   - platform: polling                                                            
     api_key: !secret telegram_api_key                                            
     allowed_chat_ids:                                                            
       - !secret telegram_chat_id
 
-vacuum:
-  - platform: xiaomi_miio
-    host: 192.168.1.133
-    token: 
-
-group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml

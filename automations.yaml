@@ -1,14 +1,14 @@
 - alias: Turn up ventilation in the morning
   trigger:
     platform: time
-    at: '08:00:00'
+    at: 07:00:00
   action:
     service: modbus.write_register
     data:
       unit: 1
       address: 100
       value: 2
-
+  id: 8a6a39fc535241f08d8ae8ccf11da6ac
 - alias: Turn down ventilation in the evening
   trigger:
     platform: time
@@ -16,36 +16,36 @@
   condition:
     condition: or
     conditions:
-      - condition: state
-        entity_id: alarm_control_panel.transistorgatan_alarm
-        state: 'armed_home'
-      - condition: state
-        entity_id: alarm_control_panel.transistorgatan_alarm
-        state: 'disarmed'
+    - condition: state
+      entity_id: alarm_control_panel.transistorgatan_alarm
+      state: armed_home
+    - condition: state
+      entity_id: alarm_control_panel.transistorgatan_alarm
+      state: disarmed
   action:
     service: modbus.write_register
     data:
       unit: 1
       address: 100
       value: 1
-
+  id: 49cb568460544776ac52d4f69e37b62f
 - alias: Turn down ventilation when alarm disarmed during night
   trigger:
-    - platform: state
-      entity_id: alarm_control_panel.transistorgatan_alarm
-      from: 'armed_away'
-      to: 'disarmed'
+  - platform: state
+    entity_id: alarm_control_panel.transistorgatan_alarm
+    from: armed_away
+    to: disarmed
   condition:
-    - condition: time
-      after: '20:00:00'
-      before: '06:00:00'
+  - condition: time
+    after: '20:00:00'
+    before: 06:00:00
   action:
     service: modbus.write_register
     data:
       unit: 1
       address: 100
       value: 1
-
+  id: e8d741735c6c46d1a8eaddaa79bd0d4a
 - alias: Set fan speed
   trigger:
     platform: state
@@ -57,7 +57,7 @@
       address: 100
     data_template:
       value: '{{ states.input_number.fan_speed.state|int }}'
-
+  id: 787d21f4722b4484a47cb397367e33ea
 - alias: Set fan speed number value
   trigger:
     platform: state
@@ -67,7 +67,7 @@
     data_template:
       entity_id: input_number.fan_speed
       value: '{{ states.sensor.fan_speed.state }}'
-
+  id: 40c9993e20da4212863cc9f956c864aa
 - alias: Set temperature set number value
   trigger:
     platform: state
@@ -77,245 +77,277 @@
     data_template:
       entity_id: input_number.temperature_set
       value: '{{ states.sensor.temperature_set.state }}'
-
-- alias: Change radio 1 volume                                                 
-  trigger:                                                                     
-    - platform: state                                                          
-      entity_id: input_number.radio_1_volume                                   
-  action:                                                                      
-    service: media_player.volume_set                                           
-    entity_id: media_player.radio_1                                            
-    data_template:                                                             
+  id: 5ef661d9cc434ea29d145cc0a6d54c71
+- alias: Change radio 1 volume
+  trigger:
+  - platform: state
+    entity_id: input_number.radio_1_volume
+  action:
+    service: media_player.volume_set
+    entity_id: media_player.radio_1
+    data_template:
       volume_level: '{{ float(states.input_number.radio_1_volume.state) / 100 }}'
-                                                                               
-- alias: Change radio 3 volume                                                 
-  trigger:                                                                     
-    - platform: state                                                          
-      entity_id: input_number.vaning_3_volume                                   
-  action:                                                                      
-    service: media_player.volume_set                                           
+  id: e295220d1b3a4ac8a0f45f48bb865b48
+- alias: Change radio 3 volume
+  trigger:
+  - platform: state
+    entity_id: input_number.vaning_3_volume
+  action:
+    service: media_player.volume_set
     entity_id: media_player.vaning_3_max
-    data_template:                                                             
+    data_template:
       volume_level: '{{ float(states.input_number.vaning_3_volume.state) / 100 }}'
-
-- alias: Turn on lights outside at sunset                                      
-  trigger:                                                                     
-    platform: sun                                                              
-    event: sunset                                                              
-  action:                                                                      
-    service: homeassistant.turn_on                                             
-    entity_id: group.outdoor_lights                                            
-                                                                               
-- alias: Turn off window and outdoor lights at sunrise                         
-  trigger:                                                                     
-    platform: sun                                                              
-    event: sunrise                                                             
-  action:                                                                      
-    - service: homeassistant.turn_off                                          
-      entity_id: group.outdoor_lights                                          
-    - service: homeassistant.turn_off                                          
-      entity_id: group.window_lights                                           
-                                                                               
-- alias: Turn on window lights at sunset                           
-  trigger:                                                                     
-    platform: sun                                                              
-    event: sunset                                                              
-    offset: '-01:00:00'                                                        
-  action:                                                                      
-    service: homeassistant.turn_on                                             
-    entity_id: group.window_lights                                             
-                                                                               
-- alias: Turn off light in the evening                                         
-  trigger:                                                                     
-    platform: time                                                             
-    at: '23:00:00'                                                             
-  action:                                                                      
-    - entity_id: group.window_lights                                           
-      service: homeassistant.turn_off                                          
-    - entity_id: group.indoor_lights                                           
-      service: homeassistant.turn_off                                          
-    - entity_id: group.cozy_lights                                             
-      service: homeassistant.turn_off                                          
-                                                                               
-- alias: Turn off lighs when alarm armed                                       
-  trigger:                                                                     
-    - platform: state                                                          
-      entity_id: alarm_control_panel.transistorgatan_alarm                     
-      to: 'armed_away'                                                         
-  action:                                                                      
-    - entity_id: group.indoor_lights                                           
-      service: homeassistant.turn_off                                          
-    - entity_id: group.cozy_lights                                             
-      service: homeassistant.turn_off                                          
-                                                                               
-- alias: Turn off wardrobe light after X minutes                               
-  trigger:                                                                     
-    - platform: state                                                          
-      entity_id: switch.garderob                                               
-      to: 'on'                                                                 
-      for:                                                                     
-        minutes: 5                                                             
-  action:                                                                      
-    - entity_id: switch.garderob                                               
-      service: homeassistant.turn_off                                          
-
-- alias: Turn on laundry lights in the morning                                 
-  trigger:                                                                     
-    - platform: time                                                           
-      at: '06:00:00'                                                           
-  condition:                                                                   
-    condition: or                                                              
-    conditions:                                                                
-      - condition: state                                                       
-        entity_id: alarm_control_panel.transistorgatan_alarm                   
-        state: 'armed_home'                                                    
-      - condition: state                                                       
-        entity_id: alarm_control_panel.transistorgatan_alarm                   
-        state: 'disarmed'                                                      
-  action:                                                                      
-    - entity_id: switch.tvattstuga                                             
-      service: homeassistant.turn_on                                           
-    - entity_id: group.cozy_lights                                             
-      service: homeassistant.turn_on                                           
-                                                                               
-- alias: Turn on lights when alarm disarmed                                    
-  trigger:                                                                     
-    - platform: state                                                          
-      entity_id: alarm_control_panel.transistorgatan_alarm                     
-      from: 'armed_away'                                                       
-      to: 'disarmed'                                                           
-  condition:                                                                   
-    - condition: time                                                          
-      after: '06:00:00'                                                        
-      before: '22:59:00'                                                       
-  action:                                                                      
-    - entity_id: switch.tvattstuga                                             
-      service: homeassistant.turn_on                                           
-    - entity_id: group.cozy_lights                                             
-      service: homeassistant.turn_on                                           
-                                                                               
-- alias: Start pers phone charger in the morning                               
-  trigger:                                                                     
-    - platform: time                                                           
-      at: '05:00:00'                                                           
-  action:                                                                      
-    - entity_id: switch.pertelefon                                             
-      service: homeassistant.turn_on                                           
-
-- alias: Turn off pers phone charger after one hour                            
-  trigger:                                                                     
-    - platform: state                                                          
-      entity_id: switch.pertelefon                                             
-      to: 'on'                                                                 
-      for:                                                                     
-        minutes: 60                                                            
-  action:                                                                      
-    - entity_id: switch.pertelefon                                             
-      service: homeassistant.turn_off                                          
-                                                                               
-- alias: Turn off radio                                                        
-  trigger:                                                                     
-    - platform: state                                                          
-      entity_id: alarm_control_panel.transistorgatan_alarm                     
-      to: 'armed_away'                                                         
-    - platform: state                                                          
-      entity_id: input_select.radio_1_kanal                                    
-      to: Av                                                                   
-  action:                                                                      
-    - service: media_player.media_pause                                        
-      entity_id: media_player.radio_1                                          
-    - service: homeassistant.turn_off                                          
-      entity_id: switch.radio1switch                                           
-                                                                               
-- alias: Notify alarm state                                                    
-  trigger:                                                                     
-    - platform: state                                                          
-      entity_id: alarm_control_panel.transistorgatan_alarm                     
-  action:                                                                      
-    service: telegram_bot.send_message
-    data:                                                                      
-      title: alarm                                                             
-    data_template:                                                             
-      message: >                                                               
-        {{ '*' ~ trigger.to_state.state ~ '*'|replace('_', ' ') }}             
-        by {{ trigger.to_state.attributes.changed_by }}                        
-                                                                               
-- alias: Notify door bell                                                      
-  trigger:                                                                     
-    - platform: state                                                          
-      entity_id: switch.ringklocka                                             
+  id: e8fd6ddd05864d4596a05012bf59a44c
+- id: 3a7f5bab33494329a510a54f8a45a7b9
+  alias: Turn on outdoor lights at sunset
+  trigger:
+  - event: sunset
+    platform: sun
+  action:
+  - data: {}
+    entity_id: light.baksida
+    service: light.turn_on
+  - data: {}
+    entity_id: light.framsida
+    service: light.turn_on
+  - data: {}
+    entity_id: light.balkong
+    service: light.turn_on
+- alias: Turn off window and outdoor lights at sunrise
+  trigger:
+    platform: sun
+    event: sunrise
+  action:
+  - service: homeassistant.turn_off
+    entity_id: group.outdoor_lights
+  - service: homeassistant.turn_off
+    entity_id: group.window_lights
+  id: 4b42e01763224545ae5ac8a2e05c70f0
+- alias: Turn on window lights at sunset
+  trigger:
+    platform: sun
+    event: sunset
+    offset: -01:00:00
+  action:
+    service: homeassistant.turn_on
+    entity_id: group.window_lights
+  id: 5f501d0cc5b54af4ba9957a07431a6c7
+- id: c920716072bf4b04935118437018b5ec
+  alias: Turn off outdoor light in the evening
+  trigger:
+  - event: sunset
+    platform: sun
+  action:
+  - data: {}
+    entity_id: light.baksida
+    service: light.turn_off
+  - data: {}
+    entity_id: light.balkong
+    service: light.turn_off
+  - data: {}
+    entity_id: light.framsida
+    service: light.turn_off
+- alias: Turn off wardrobe light after X minutes
+  trigger:
+  - platform: state
+    entity_id: switch.garderob
+    to: 'on'
+    for:
+      minutes: 5
+  action:
+  - entity_id: switch.garderob
+    service: homeassistant.turn_off
+  id: 4157a3cb5b4b4945b343ff293d87dbad
+- alias: Turn on laundry lights in the morning
+  trigger:
+  - platform: time
+    at: 06:00:00
   condition:
-    - condition: state                                                         
-      entity_id: switch.ringklocka                                             
-      state: 'on'                                                              
-  action:                                                                      
-    - service: telegram_bot.send_message
-      data:                                                        
-        title: ringklocka
-        message: ding dong
-    - service: tts.google_say
-      entity_id: media_player.googlehome8863
-      data:
-        message: "Det ringer på dörren"
-                             
-- alias: Start Radio 1                                                         
-  trigger:                                                                     
-    platform: state                                                            
-    entity_id: input_select.radio_1_kanal                                      
-  action:                                                                      
-  #- entity_id: switch.radio1switch                                           
-  #    service: homeassistant.turn_on                                           
-    - entity_id: script.ON                                                     
-      service: script.start_radio_1                                            
-                                                                               
-- alias: Start Radio 3                                                         
-  trigger:                                                                     
-    platform: state                                                            
-    entity_id: input_select.vaning_3_kanal                                      
-  action:                                                                      
-    - entity_id: script.ON                                                     
-      service: script.start_radio_3                                            
-                                                                               
-- alias: Set fan speed                                                         
-  trigger:                                                                     
-    platform: state                                                            
-    entity_id: input_number.fan_speed                                          
-  action:                                                                      
-    service: modbus.write_register                                             
-    data:                                                                      
-      unit: 1                                                                  
-      address: 100                                                             
-    data_template:                                                             
-      value: '{{ states.input_number.fan_speed.state|int }}'                   
-                                                                               
-- alias: Set fan speed number value                                            
-  trigger:                                                                     
-    platform: state                                                            
-    entity_id: sensor.fan_speed                                                
-  action:                                                                      
-    service: input_number.set_value                                            
-    data_template:                                                             
-      entity_id: input_number.fan_speed                                        
-      value: '{{ states.sensor.fan_speed.state }}'  
-
-- alias: Set temperature set                                                   
-  trigger:                                                                     
-    platform: state                                                            
-    entity_id: input_number.temperature_set                                    
-  action:                                                                      
-    service: modbus.write_register                                             
-    data:                                                                      
-        unit: 1                                                                
-        address: 206                                                           
-    data_template:                                                             
-        value: '{{ states.input_number.temperature_set.state|int }}'           
-                                                                               
-- alias: Set temperature set number value                                      
-  trigger:                                                                     
-    platform: state                                                            
-    entity_id: sensor.temperature_set                                          
-  action:                                                                      
-    service: input_number.set_value                                            
-    data_template:                                                             
-      entity_id: input_number.temperature_set                                  
-      value: '{{ states.sensor.temperature_set.state }}' 
+    condition: or
+    conditions:
+    - condition: state
+      entity_id: alarm_control_panel.transistorgatan_alarm
+      state: armed_home
+    - condition: state
+      entity_id: alarm_control_panel.transistorgatan_alarm
+      state: disarmed
+  action:
+  - entity_id: switch.tvattstuga
+    service: homeassistant.turn_on
+  - entity_id: group.cozy_lights
+    service: homeassistant.turn_on
+  id: 615877b6e9f347368c874dc52c1fce6a
+- id: 586f8c21c547462ead4984634b304f3a
+  alias: Turn on lights when alarm disarmed
+  trigger:
+  - platform: state
+    entity_id: alarm_control_panel.transistorgatan_alarm
+    from: armed_away
+    to: disarmed
+  condition:
+  - condition: time
+    after: 06:00:00
+    before: '22:59:00'
+  action:
+  - type: turn_on
+    device_id: e61e60601e237530762e92bc525e9258
+    entity_id: switch.ac_0ed623e_2
+    domain: switch
+  - type: turn_on
+    device_id: 73ace8c24b060ac6505ff07be4d00699
+    entity_id: switch.ac_0ed623e_3
+    domain: switch
+  - type: turn_on
+    device_id: 75dd8dff8179a465a317a869dc4191d1
+    entity_id: switch.ac_0ed623e_4
+    domain: switch
+  - type: turn_on
+    device_id: 0c83efdba3726436c6ecd81eadacf559
+    entity_id: switch.ac_1e067d2_13
+    domain: switch
+  - type: turn_on
+    device_id: 00a56c0213e61d39c61066b0c615b693
+    entity_id: switch.ac_1e067d2_15
+    domain: switch
+  - type: turn_on
+    device_id: c7408eb09c820612daf3b1ddb39051ee
+    entity_id: switch.ac_1e067d2_14
+    domain: switch
+- alias: Turn off radio
+  trigger:
+  - platform: state
+    entity_id: alarm_control_panel.transistorgatan_alarm
+    to: armed_away
+  - platform: state
+    entity_id: input_select.radio_1_kanal
+    to: Av
+  action:
+  - service: media_player.media_pause
+    entity_id: media_player.radio_1
+  - service: homeassistant.turn_off
+    entity_id: switch.radio1switch
+  id: d65758b0d94344b2a93fce5d509f3fcc
+- alias: Notify alarm state
+  trigger:
+  - platform: state
+    entity_id: alarm_control_panel.transistorgatan_alarm
+  action:
+    service: telegram_bot.send_message
+    data:
+      title: alarm
+    data_template:
+      message: "{{ '*' ~ trigger.to_state.state ~ '*'|replace('_', ' ') }}       \
+        \       by {{ trigger.to_state.attributes.changed_by }}                  \
+        \      \n                                                                \
+        \       \n"
+  id: cabee5c875fc47d5bea013a5a1d4cfbd
+- alias: Notify door bell
+  trigger:
+  - platform: state
+    entity_id: switch.ringklocka
+  condition:
+  - condition: state
+    entity_id: switch.ringklocka
+    state: 'on'
+  action:
+  - service: telegram_bot.send_message
+    data:
+      title: ringklocka
+      message: ding dong
+  - service: tts.google_say
+    entity_id: media_player.googlehome8863
+    data:
+      message: Det ringer på dörren
+  id: 0f3e06f985494e4daa95848b285eadc8
+- alias: Start Radio 1
+  trigger:
+    platform: state
+    entity_id: input_select.radio_1_kanal
+  action:
+  - entity_id: script.ON
+    service: script.start_radio_1
+  id: efe6e58b60ba497aa27bda31a0aa7282
+- alias: Start Radio 3
+  trigger:
+    platform: state
+    entity_id: input_select.vaning_3_kanal
+  action:
+  - entity_id: script.ON
+    service: script.start_radio_3
+  id: f0c519033d36472ea59ce9578ed6debf
+- alias: Set fan speed
+  trigger:
+    platform: state
+    entity_id: input_number.fan_speed
+  action:
+    service: modbus.write_register
+    data:
+      unit: 1
+      address: 100
+    data_template:
+      value: '{{ states.input_number.fan_speed.state|int }}'
+  id: daec6d287f724becb82e266cacbc1c02
+- alias: Set fan speed number value
+  trigger:
+    platform: state
+    entity_id: sensor.fan_speed
+  action:
+    service: input_number.set_value
+    data_template:
+      entity_id: input_number.fan_speed
+      value: '{{ states.sensor.fan_speed.state }}'
+  id: 063310debe244fff8da0268300053507
+- alias: Set temperature set
+  trigger:
+    platform: state
+    entity_id: input_number.temperature_set
+  action:
+    service: modbus.write_register
+    data:
+      unit: 1
+      address: 206
+    data_template:
+      value: '{{ states.input_number.temperature_set.state|int }}'
+  id: c9f442485abe43f78d8ff7f6846efda6
+- alias: Set temperature set number value
+  trigger:
+    platform: state
+    entity_id: sensor.temperature_set
+  action:
+    service: input_number.set_value
+    data_template:
+      entity_id: input_number.temperature_set
+      value: '{{ states.sensor.temperature_set.state }}'
+  id: 73b4c8714c04456389c751980f5fb5ba
+- id: '1615737980880'
+  alias: Start indoor lights in the morning
+  description: ''
+  trigger:
+  - platform: time
+    at: 06:00:00
+  condition: []
+  action:
+  - type: turn_on
+    device_id: e61e60601e237530762e92bc525e9258
+    entity_id: switch.ac_0ed623e_2
+    domain: switch
+  - type: turn_on
+    device_id: 73ace8c24b060ac6505ff07be4d00699
+    entity_id: switch.ac_0ed623e_3
+    domain: switch
+  - type: turn_on
+    device_id: 75dd8dff8179a465a317a869dc4191d1
+    entity_id: switch.ac_0ed623e_4
+    domain: switch
+  - type: turn_on
+    device_id: 0c83efdba3726436c6ecd81eadacf559
+    entity_id: switch.ac_1e067d2_13
+    domain: switch
+  - type: turn_on
+    device_id: 00a56c0213e61d39c61066b0c615b693
+    entity_id: switch.ac_1e067d2_15
+    domain: switch
+  - type: turn_on
+    device_id: c7408eb09c820612daf3b1ddb39051ee
+    entity_id: switch.ac_1e067d2_14
+    domain: switch
